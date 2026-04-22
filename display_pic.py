@@ -27,9 +27,19 @@ async def listen_for_pic():
       msg = await ws.recv()
       data = json.loads(msg)
 
+      # Display Error screen
+      if data.get("error", None):
+        print(data["error"])
+      
+      # Display voter info for verification by PrecinctOfficer
       # For now, just print MOSIP data on terminal and save photo as .jpg
-      print("Received MOSIP result:")
-      print(json.dumps(data["demographics"]))
-      save_photo(data["photo"])      
+      else:
+        print("Received /scan result:")
+        print("UIN:", data["uin"])
+        print("Demographics:", data["demographics"])
+        print("Registered Voter: ", data["registered_voter"])
+        print("Precinct: ", data["precinct"])
+        print("Voted: ", data["voted"])        
+        save_photo(data["photo"])      
   
 asyncio.run(listen_for_pic())
