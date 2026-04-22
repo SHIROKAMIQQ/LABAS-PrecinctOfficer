@@ -1,10 +1,14 @@
+from dotenv import load_dotenv
 import asyncio
 import websockets
 import json
 import base64
+import os
 
-DEVICE_ID = "1"
-DISPLAY_PIC_API = f"ws://165.245.190.93:8000/display-pic/{DEVICE_ID}"
+load_dotenv()
+DEVICE_ID = os.getenv("DEVICE_ID")
+API_IP = os.getenv("API_IP")
+DISPLAY_PIC_API = f"ws://{API_IP}:8000/display-pic/{DEVICE_ID}"
 
 # Helper function to convert base64 string of a photo into .jpg
 def save_photo(base64_str: str, filename="photo.jpg"):
