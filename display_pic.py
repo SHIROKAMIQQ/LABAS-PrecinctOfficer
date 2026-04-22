@@ -21,7 +21,7 @@ def save_photo(base64_str: str, filename="photo.jpg"):
 # Upon receiving MOSIP data, display them.
 async def listen_for_pic():
   async with websockets.connect(DISPLAY_PIC_API) as ws:
-    print(f"Connected to {DEVICE_ID}")
+    print(f"Connected to {DEVICE_ID} at {API_IP}")
 
     while True:
       msg = await ws.recv()
