@@ -12,7 +12,7 @@
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
 <div id="main" class="flex items-center justify-center min-h-screen">
-	<Navbar class="absolute top-0 left-0">
+	<Navbar class="absolute top-0 left-0 border-b-1">
 		<NavBrand href="/">
 			<span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">L.A.B.A.S.</span>
 		</NavBrand>
@@ -22,8 +22,7 @@
 		</NavUl>
 	</Navbar>
 	
-	<div class="mx-auto mt-10 flex w-full max-w-300 flex-col p-10">
+	<div class="flex justify-center w-full mx-auto mt-10 p-10">
 		{@render children()}
-		
 	</div>
 </div>
