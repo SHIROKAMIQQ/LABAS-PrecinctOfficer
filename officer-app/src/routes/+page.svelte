@@ -1,14 +1,13 @@
 <!-- src/routes/+page.svelte -->
 <script lang="ts">
-  // No imports needed for the icons; we're using inline SVGs for full control.
-  // Order matches your nav: Generate, Submit, Tally
+
   const panels = [
     {
       title: "Generate",
       label: "Ballot",
       description: "Verify voter identity and issue ballots at the precinct",
       href: "/generate",
-      bg: "bg-[#0038A8]",        // PH flag blue
+      bg: "bg-[#0038A8]",        // blue
       hoverBg: "hover:bg-[#002a80]",
       cta: "Start Verification",
     },
@@ -17,7 +16,7 @@
       label: "Ballot",
       description: "Record completed ballots into the secure tally system",
       href: "/submit",
-      bg: "bg-[#CE1126]",        // PH flag red
+      bg: "bg-[#CE1126]",        // red
       hoverBg: "hover:bg-[#a30d1d]",
       cta: "Submit Now",
     },
@@ -26,10 +25,10 @@
       label: "Tally Board",
       description: "Live results and turnout for the current precinct",
       href: "/tally",
-      bg: "bg-[#FCD116]",        // PH flag yellow
+      bg: "bg-[#FCD116]",        // yellow
       hoverBg: "hover:bg-[#d9b210]",
       cta: "Open Dashboard",
-      darkText: true,            // yellow needs dark text for contrast
+      darkText: true,
     },
   ] as const;
 </script>
@@ -41,7 +40,7 @@
       href={panel.href}
       class="group relative flex-1 flex flex-col justify-between p-10 lg:p-12 transition-colors duration-200 {panel.bg} {panel.hoverBg} {panel.darkText ? 'text-gray-900' : 'text-white'}"
     >
-      <!-- Top: title + description -->
+      <!-- title and description -->
       <div class="flex flex-col gap-3 max-w-md">
         <h2 class="text-5xl lg:text-6xl font-bold leading-tight tracking-tight">
           {panel.title}<br />
@@ -57,10 +56,9 @@
         </span>
       </div>
 
-      <!-- Bottom: civic icon -->
+      <!-- icons -->
       <div class="flex justify-end mt-12 lg:mt-0">
         {#if panel.title === "Generate"}
-          <!-- Ballot / ID document icon -->
           <svg class="w-32 h-32 lg:w-48 lg:h-48 opacity-30 group-hover:opacity-50 transition-opacity" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="12" y="8" width="40" height="48" rx="2" />
             <circle cx="24" cy="22" r="5" />
@@ -72,7 +70,6 @@
           </svg>
 
         {:else if panel.title === "Submit"}
-          <!-- Ballot box with arrow icon -->
           <svg class="w-32 h-32 lg:w-48 lg:h-48 opacity-30 group-hover:opacity-50 transition-opacity" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="8" y="28" width="48" height="28" rx="2" />
             <line x1="20" y1="28" x2="44" y2="28" />
@@ -81,7 +78,6 @@
           </svg>
 
         {:else}
-          <!-- Bar chart / tally icon -->
           <svg class="w-32 h-32 lg:w-48 lg:h-48 opacity-40 group-hover:opacity-60 transition-opacity" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="8" y1="56" x2="56" y2="56" stroke-linecap="round" />
             <rect x="14" y="36" width="8" height="20" />
