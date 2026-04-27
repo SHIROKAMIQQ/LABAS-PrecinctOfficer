@@ -44,7 +44,19 @@ import { onDestroy } from "svelte";
         console.log('demographics:', result.demographics);
         console.log("City:", result.demographics.location1_eng);
         console.log("Province:", result.demographics.location3_eng);
-        status = "received";
+
+        if (result.registered_voter === false) {
+          status = "error";
+          errorMessage = "Not a registered voter.";
+        } else if (result.voted === true) {
+          status = "error";
+          errorMessage = "Voter has already voted.";
+        } else if (result.precinct !== null) {
+          status = "error";
+          errorMessage = "Ballot already generated for this voter in precinct " + result.precinct;
+        } else {
+            status = "received";
+        }
         ws?.close();
       } catch (e) {
         status = "error";
@@ -68,6 +80,7 @@ import { onDestroy } from "svelte";
     const params = new URLSearchParams({
         province: result.demographics.location3_eng,
         city: result.demographics.location1_eng,
+        uin: result.uin
     });
     
     const url = `http://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/print-ballot?${params}`;
