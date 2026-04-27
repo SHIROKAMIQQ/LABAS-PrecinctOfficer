@@ -41,6 +41,9 @@ import { onDestroy } from "svelte";
         }
 
         result = data;
+        console.log('demographics:', result.demographics);
+        console.log("City:", result.demographics.location1_eng);
+        console.log("Province:", result.demographics.location3_eng);
         status = "received";
         ws?.close();
       } catch (e) {
@@ -61,11 +64,25 @@ import { onDestroy } from "svelte";
     };
   }
 
-  // TODO: add yenyen's api
-  function confirmMatch() {
-    // TODO: call backend API to mark voter as verified / proceed to ballot
-    alert(`Voter verified. (TODO: call magic api`);
-    reset();
+  async function confirmMatch() {
+    const params = new URLSearchParams({
+        province: result.demographics.location3_eng,
+        city: result.demographics.location1_eng,
+    });
+    
+    const url = `http://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/print-ballot?${params}`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const data = await response.json();
+        console.log('Printed:', data);
+        reset();
+    } catch (err) {
+        console.error('Print failed:', err);
+        // show error toast
+    }
   }
 
   function rejectMatch() {
