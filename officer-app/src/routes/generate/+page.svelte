@@ -25,11 +25,6 @@
 
     const PRECINCT = "UP Diliman";
 
-    // Build photo based on display_pic.py
-    const photoSrc = $derived(
-        result?.photo ? `data:image/jpeg;base64,${result.photo}` : "",
-    );
-
     // After calling, it waits for the QR scanner to connect, then once scanned it waits for the server's response
     function startScan() {
         if (ws) ws.close();
@@ -153,7 +148,9 @@
             </p>
             <Button color="light" onclick={reset}>Cancel</Button>
         </div>
-    {:else if status === "received" && result}
+    {:else if status === "received" && result !== null}
+        <!-- Build photo based on display_pic.py -->
+        {@const photoSrc = `data:image/jpeg;base64,${result.photo}`}
         <div class="flex gap-8">
             <img
                 src={photoSrc}
