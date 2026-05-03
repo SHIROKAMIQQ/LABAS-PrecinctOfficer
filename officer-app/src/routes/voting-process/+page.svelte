@@ -52,6 +52,9 @@
                 if (result.voter_status === 'tallied') {
                     status = "error";
                     errorMessage = "Voter is already done with the process";
+                } else if (result.voter_status === 'printed' && result.precinct !== PRECINCT) {
+                    status = "error";
+                    errorMessage = `Voter is submitting ballot in a different precinct. Please redirect them to precinct ${result.precinct}.`
                 } else {
                     status = "received";
                 }
