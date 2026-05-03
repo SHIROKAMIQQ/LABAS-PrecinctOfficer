@@ -105,7 +105,8 @@
     }
 
     function rejectPhotoMatch() {
-        status = "mismatch-photo";
+        status = "error";
+        errorMessage = "MISMATCH: The voter does not match the ID photo on file. Do not issue a ballot."
     }
 
     function reset() {
@@ -197,17 +198,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    {:else if status === "mismatch-photo"}
-        <div
-            class="flex flex-col items-center justify-center h-full gap-4 text-red-600"
-        >
-            <h1 class="text-2xl font-bold">⚠ Invalid ID: Mismatch</h1>
-            <p>
-                The voter does not match the ID photo on file. Do not issue a
-                ballot.
-            </p>
-            <Button color="light" onclick={reset}>Reset</Button>
         </div>
 
     {:else if status === "scanning-ballot"}

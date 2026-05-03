@@ -1,6 +1,6 @@
 import { nullable, object, picklist, string, type InferOutput, union } from "valibot";
 
-export const webSocketStatusValues = ['idle', 'connecting', 'scanning-qr', 'received-photo', 'error', 'mismatch-photo', 'scanning-ballot'] as const;
+export const webSocketStatusValues = ['idle', 'connecting', 'scanning-qr', 'received-photo', 'scanning-ballot', 'error'] as const;
 export type WebSocketStatus = typeof webSocketStatusValues[number];
 
 const voterStatusValues = ['printed', 'tallied'] as const;
