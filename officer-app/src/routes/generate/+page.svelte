@@ -75,7 +75,7 @@
         };
     }
 
-    async function confirmMatch() {
+    async function printBallot() {
         try {
             if (result === null) throw new Error('No scan result');
 
@@ -176,13 +176,12 @@
                         {#if result.voter_status === null}
                             <Button
                                 color="green"
-                                onclick={confirmMatch}
+                                onclick={async () => await printBallot()}
                                 class="text-xl">Yes — Print Ballot</Button
                             >
                         {:else}
                             <Button
                                 color="green"
-                                onclick={confirmMatch}
                                 class="text-xl">Yes — Scan Ballot</Button
                             >
                         {/if}
