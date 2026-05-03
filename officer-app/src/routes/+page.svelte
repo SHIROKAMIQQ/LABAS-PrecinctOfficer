@@ -3,22 +3,14 @@
 
   const panels = [
     {
-      title: "Generate",
+      title: "Vote",
       label: "Ballot",
-      description: "Verify voter identity and issue ballots at the precinct",
-      href: "/generate",
+      description: "Verify voter identity and vote at the precinct",
+      href: "/voting-process",
       bg: "bg-[#0038A8]",        // blue
       hoverBg: "hover:bg-[#002a80]",
-      cta: "Start Verification",
-    },
-    {
-      title: "Submit",
-      label: "Ballot",
-      description: "Record completed ballots into the secure tally system",
-      href: "/submit",
-      bg: "bg-[#CE1126]",        // red
-      hoverBg: "hover:bg-[#a30d1d]",
-      cta: "Submit Now",
+      cta: "Verify and Vote",
+      darkText: false,
     },
     {
       title: "View",
@@ -58,7 +50,7 @@
 
       <!-- icons -->
       <div class="flex justify-end mt-12 lg:mt-0">
-        {#if panel.title === "Generate"}
+        {#if panel.title === "Vote"}
           <svg class="w-32 h-32 lg:w-48 lg:h-48 opacity-30 group-hover:opacity-50 transition-opacity" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="12" y="8" width="40" height="48" rx="2" />
             <circle cx="24" cy="22" r="5" />
@@ -67,14 +59,6 @@
             <line x1="16" y1="38" x2="48" y2="38" />
             <line x1="16" y1="44" x2="48" y2="44" />
             <line x1="16" y1="50" x2="38" y2="50" />
-          </svg>
-
-        {:else if panel.title === "Submit"}
-          <svg class="w-32 h-32 lg:w-48 lg:h-48 opacity-30 group-hover:opacity-50 transition-opacity" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="8" y="28" width="48" height="28" rx="2" />
-            <line x1="20" y1="28" x2="44" y2="28" />
-            <rect x="24" y="32" width="16" height="3" />
-            <path d="M32 20 L32 6 M26 12 L32 6 L38 12" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
 
         {:else}
