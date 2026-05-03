@@ -207,12 +207,13 @@
             </p>
             <Button color="light" onclick={reset}>Reset</Button>
         </div>
-    {:else if status === "error"}
+    {:else}
+        <!-- Then status is error -->
         <div
             class="flex flex-col items-center justify-center h-full gap-4 text-red-600"
         >
             <h1 class="text-xl font-bold">Error</h1>
-            <p>{errorMessage}</p>
+            <p>{errorMessage === '' ? 'Unknown error' : errorMessage}</p>
             <Button color="light" onclick={reset}>Try Again</Button>
         </div>
     {/if}
