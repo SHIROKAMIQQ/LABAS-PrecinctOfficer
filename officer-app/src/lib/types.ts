@@ -11,6 +11,7 @@ export const ScanResultSchema = object({
         location3_eng: string(),
     }),
     photo: string(), // base64 string
+    precinct: string(),
     voter_status: nullable(picklist(voterStatusValues)),
 });
 export type ScanResult = InferOutput<typeof ScanResultSchema>;
