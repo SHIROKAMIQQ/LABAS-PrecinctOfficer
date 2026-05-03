@@ -4,17 +4,19 @@
     import { MapPinAltOutline } from 'flowbite-svelte-icons';
     import { goto } from '$app/navigation';
 
+    // For testing purposes
     console.log(encodeURIComponent('City of Las Piñas'));
+
     function selectCity(city: string, isNCR: boolean = true) {
         if (isNCR) {
-            goto(`/local/Metro%20Manila/${encodeURIComponent(city)}`);
+            goto(`/tally/local?province=${encodeURIComponent('Metro Manila')}&city=${encodeURIComponent(city)}`);
         } else {
-            goto(`/local/${encodeURIComponent(city)}/${encodeURIComponent(city)}`);
+            goto(`/tally/local?province=${encodeURIComponent(city)}&city=${encodeURIComponent(city)}`);
         }
     }
 
     function selectProvince(province: string) {
-        goto(`/local/${encodeURIComponent(province)}`);
+        goto(`/tally/local?province=${encodeURIComponent(province)}`);
     }
 
     const metro_manila_cities = [
