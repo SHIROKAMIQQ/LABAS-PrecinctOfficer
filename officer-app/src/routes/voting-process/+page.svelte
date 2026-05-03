@@ -12,9 +12,11 @@
     import { type ScanQRResult, type ScanQRMessage, type WebSocketStatus, ScanQRMessageSchema, ScanQRErrorSchema, PrintBallotMessageSchema } from "$lib/types";
 
     let status: WebSocketStatus = $state("idle");
-    let result: ScanQRResult | null = $state(null);
     let errorMessage: string = $state("");
+
     let wsQR: WebSocket | null = null;
+    let resultQR: ScanQRResult | null = $state(null);
+
     let wsBallot: WebSocket | null = null;
 
     const PRECINCT = "UP Diliman";
@@ -29,7 +31,7 @@
 
         status = "connecting";
         errorMessage = "";
-        result = null;
+        resultQR = null;
 
         const url = `ws://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/display-pic/${PUBLIC_DEVICE_ID}`;
         wsQR = new WebSocket(url);
@@ -49,17 +51,17 @@
                     return;
                 }
 
-                result = data;
-                console.log("demographics:", result.demographics);
-                console.log("City:", result.demographics.location1_eng);
-                console.log("Province:", result.demographics.location3_eng);
+                resultQR = data;
+                console.log("demographics:", resultQR.demographics);
+                console.log("City:", resultQR.demographics.location1_eng);
+                console.log("Province:", resultQR.demographics.location3_eng);
 
-                if (result.voter_status === 'tallied') {
+                if (resultQR.voter_status === 'tallied') {
                     status = "error";
                     errorMessage = "Voter is already done with the process";
-                } else if (result.voter_status === 'printed' && result.precinct !== PRECINCT) {
+                } else if (resultQR.voter_status === 'printed' && resultQR.precinct !== PRECINCT) {
                     status = "error";
-                    errorMessage = `Voter is submitting ballot in a different precinct. Please redirect them to precinct ${result.precinct}.`
+                    errorMessage = `Voter is submitting ballot in a different precinct. Please redirect them to precinct ${resultQR.precinct}.`
                 } else {
                     status = "received-photo";
                 }
@@ -85,12 +87,12 @@
 
     async function printBallot() {
         try {
-            if (result === null) throw new Error('No scan result');
+            if (resultQR === null) throw new Error('No scan result');
 
             const params = new URLSearchParams({
-                province: result.demographics.location3_eng,
-                city: result.demographics.location1_eng,
-                uin: result.uin,
+                province: resultQR.demographics.location3_eng,
+                city: resultQR.demographics.location1_eng,
+                uin: resultQR.uin,
             });
 
             const url = `http://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/print-ballot?${params}`;
@@ -116,7 +118,7 @@
 
     function reset() {
         status = "idle";
-        result = null;
+        resultQR = null;
         errorMessage = "";
     }
 
@@ -148,9 +150,9 @@
             </p>
             <Button color="light" onclick={reset}>Cancel</Button>
         </div>
-    {:else if status === "received-photo" && result !== null && result.voter_status !== 'tallied'}
+    {:else if status === "received-photo" && resultQR !== null && resultQR.voter_status !== 'tallied'}
         <!-- Build photo based on display_pic.py -->
-        {@const photoSrc = `data:image/jpeg;base64,${result.photo}`}
+        {@const photoSrc = `data:image/jpeg;base64,${resultQR.photo}`}
         <div class="flex gap-8">
             <img
                 src={photoSrc}
@@ -159,7 +161,7 @@
             />
             <div class="flex flex-col gap-6 p-2 w-full [&>p]:text-xl [&>p>span]:text-xl">
                 <p>
-                    UIN: <span class="ml-1.5 text-gray-600 font-mono tracking-widest">{result.uin}</span>
+                    UIN: <span class="ml-1.5 text-gray-600 font-mono tracking-widest">{resultQR.uin}</span>
                 </p>
                 <p>
                     PRECINCT: <span class="ml-1.5 font-medium">{PRECINCT}</span>
@@ -167,7 +169,7 @@
                 <p>
                     STATUS:
                     <span class="ml-1.5">
-                        {#if result.voter_status === null}
+                        {#if resultQR.voter_status === null}
                             <PrinterOutline size="xl" class="mr-1" /> Voter has <span class="font-medium text-xl">not</span> started with the process.
                         {:else}
                             <UploadOutline size="xl" class="mr-1" /> Voter's ballot has been printed, and <span class="font-medium text-xl">ready for scanning</span>.
@@ -183,7 +185,7 @@
                         Does the voter match the ID photo?
                     </p>
                     <div class="flex gap-8">
-                        {#if result.voter_status === null}
+                        {#if resultQR.voter_status === null}
                             <Button
                                 color="green"
                                 onclick={async () => await printBallot()}
