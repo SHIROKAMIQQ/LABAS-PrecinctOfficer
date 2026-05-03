@@ -14,27 +14,27 @@
     let status: WebSocketStatus = $state("idle");
     let result: ScanResult | null = $state(null);
     let errorMessage: string = $state("");
-    let ws: WebSocket | null = null;
+    let wsQR: WebSocket | null = null;
 
     const PRECINCT = "UP Diliman";
 
     // After calling, it waits for the QR scanner to connect, then once scanned it waits for the server's response
     function scanQR() {
-        if (ws) ws.close();
+        if (wsQR) wsQR.close();
 
         status = "connecting";
         errorMessage = "";
         result = null;
 
         const url = `ws://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/display-pic/${PUBLIC_DEVICE_ID}`;
-        ws = new WebSocket(url);
+        wsQR = new WebSocket(url);
 
-        ws.onopen = () => {
+        wsQR.onopen = () => {
             console.log("WebSocket open, waiting for scan...");
             status = "scanning-qr";
         };
 
-        ws.onmessage = (event) => {
+        wsQR.onmessage = (event) => {
             try {
                 const data: ScanMessage = parse(ScanMessageSchema, JSON.parse(event.data));
 
@@ -63,17 +63,17 @@
                 errorMessage = "Malformed response from server";
                 console.error(e);
             } finally {
-                if (ws) ws.close();
+                if (wsQR) wsQR.close();
             }
         };
 
-        ws.onerror = (e) => {
+        wsQR.onerror = (e) => {
             console.error("WebSocket error:", e);
             status = "error";
             errorMessage = "Connection error";
         };
 
-        ws.onclose = () => {
+        wsQR.onclose = () => {
             console.log("WebSocket closed");
         };
     }
@@ -116,7 +116,7 @@
     }
 
     onDestroy(() => {
-        if (ws) ws.close();
+        if (wsQR) wsQR.close();
     });
 </script>
 
