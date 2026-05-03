@@ -139,7 +139,7 @@
             </p>
             <Button color="light" onclick={reset}>Cancel</Button>
         </div>
-    {:else if status === "received" && result !== null}
+    {:else if status === "received" && result !== null && result.voter_status !== 'tallied'}
         <!-- Build photo based on display_pic.py -->
         {@const photoSrc = `data:image/jpeg;base64,${result.photo}`}
         <div class="flex gap-8">
