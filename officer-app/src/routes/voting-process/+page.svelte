@@ -31,7 +31,7 @@
 
         ws.onopen = () => {
             console.log("WebSocket open, waiting for scan...");
-            status = "waiting";
+            status = "scanning-qr";
         };
 
         ws.onmessage = (event) => {
@@ -56,7 +56,7 @@
                     status = "error";
                     errorMessage = `Voter is submitting ballot in a different precinct. Please redirect them to precinct ${result.precinct}.`
                 } else {
-                    status = "received";
+                    status = "received-photo";
                 }
             } catch (e) {
                 status = "error";
@@ -104,8 +104,8 @@
         }
     }
 
-    function rejectMatch() {
-        status = "mismatch";
+    function rejectPhotoMatch() {
+        status = "mismatch-photo";
     }
 
     function reset() {
@@ -130,10 +130,11 @@
         <div class="flex flex-col items-center justify-center h-full gap-4">
             <div class="animate-pulse text-lg">Connecting to scanner...</div>
             <p class="text-sm text-gray-500">
-                Please wait while we connect to the QR scanner via WebSocket.
+                Please wait while we connect to the server via WebSocket.
             </p>
         </div>
-    {:else if status === "waiting"}
+
+    {:else if status === "scanning-qr"}
         <div class="flex flex-col items-center justify-center h-full gap-4">
             <div class="animate-pulse text-lg">Waiting for scan...</div>
             <p class="text-sm text-gray-500">
@@ -141,7 +142,7 @@
             </p>
             <Button color="light" onclick={reset}>Cancel</Button>
         </div>
-    {:else if status === "received" && result !== null && result.voter_status !== 'tallied'}
+    {:else if status === "received-photo" && result !== null && result.voter_status !== 'tallied'}
         <!-- Build photo based on display_pic.py -->
         {@const photoSrc = `data:image/jpeg;base64,${result.photo}`}
         <div class="flex gap-8">
@@ -190,14 +191,14 @@
                         {/if}
                         <Button
                             color="red"
-                            onclick={rejectMatch}
+                            onclick={rejectPhotoMatch}
                             class="text-xl">No — Mismatch</Button
                         >
                     </div>
                 </div>
             </div>
         </div>
-    {:else if status === "mismatch"}
+    {:else if status === "mismatch-photo"}
         <div
             class="flex flex-col items-center justify-center h-full gap-4 text-red-600"
         >
@@ -208,6 +209,7 @@
             </p>
             <Button color="light" onclick={reset}>Reset</Button>
         </div>
+
     {:else if status === "scanning-ballot"}
         <div class="flex flex-col items-center justify-center h-full gap-4">
             <div class="animate-pulse text-lg">
@@ -218,6 +220,7 @@
             </p>
             <Button color="light" onclick={reset}>Cancel</Button>
         </div>
+
     {:else}
         <!-- Then status is error -->
         <div
