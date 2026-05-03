@@ -111,6 +111,10 @@
         }
     }
 
+    function scanBallot() {
+        status = "scanning-ballot";
+    }
+
     function rejectPhotoMatch() {
         status = "error";
         errorMessage = "MISMATCH: The voter does not match the ID photo on file. Do not issue a ballot."
@@ -194,6 +198,7 @@
                         {:else}
                             <Button
                                 color="green"
+                                onclick={scanBallot}
                                 class="text-xl">Yes — Scan Ballot</Button
                             >
                         {/if}
