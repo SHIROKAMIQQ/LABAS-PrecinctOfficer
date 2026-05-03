@@ -145,7 +145,7 @@
         <div class="flex gap-8">
             <img
                 src={photoSrc}
-                alt="Voter ID photo"
+                alt="Voter Appearance"
                 class="aspect-square h-[75vh] object-cover rounded-sm border"
             />
             <div class="flex flex-col gap-6 p-2 w-full">
