@@ -15,12 +15,17 @@
     let result: ScanResult | null = $state(null);
     let errorMessage: string = $state("");
     let wsQR: WebSocket | null = null;
+    let wsBallot: WebSocket | null = null;
 
     const PRECINCT = "UP Diliman";
 
+    function closeWebSockets() {
+        [wsQR, wsBallot].forEach(ws => { if (ws) ws.close() });
+    }
+
     // After calling, it waits for the QR scanner to connect, then once scanned it waits for the server's response
     function scanQR() {
-        if (wsQR) wsQR.close();
+        closeWebSockets();
 
         status = "connecting";
         errorMessage = "";
@@ -63,7 +68,7 @@
                 errorMessage = "Malformed response from server";
                 console.error(e);
             } finally {
-                if (wsQR) wsQR.close();
+                closeWebSockets();
             }
         };
 
@@ -116,7 +121,7 @@
     }
 
     onDestroy(() => {
-        if (wsQR) wsQR.close();
+        closeWebSockets();
     });
 </script>
 
