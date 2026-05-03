@@ -19,7 +19,7 @@
     const PRECINCT = "UP Diliman";
 
     // After calling, it waits for the QR scanner to connect, then once scanned it waits for the server's response
-    function startScan() {
+    function scanQR() {
         if (ws) ws.close();
 
         status = "connecting";
@@ -119,7 +119,7 @@
 <div id="container" class="flex flex-col w-full h-[80vh] p-6 gap-4">
     {#if status === "idle"}
         <div class="flex items-center justify-center h-full">
-            <Button color="primary" onclick={startScan}>
+            <Button color="primary" onclick={scanQR}>
                 Generate and Print Ballot
             </Button>
         </div>
