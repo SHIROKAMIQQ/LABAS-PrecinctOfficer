@@ -76,15 +76,17 @@
     }
 
     async function confirmMatch() {
-        const params = new URLSearchParams({
-            province: result.demographics.location3_eng,
-            city: result.demographics.location1_eng,
-            uin: result.uin,
-        });
-
-        const url = `http://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/print-ballot?${params}`;
-
         try {
+            if (result === null) throw new Error('No scan result');
+
+            const params = new URLSearchParams({
+                province: result.demographics.location3_eng,
+                city: result.demographics.location1_eng,
+                uin: result.uin,
+            });
+
+            const url = `http://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/print-ballot?${params}`;
+
             const response = await fetch(url);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
