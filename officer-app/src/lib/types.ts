@@ -1,4 +1,4 @@
-import { nullable, object, picklist, string, type InferOutput, union } from "valibot";
+import { nullable, object, picklist, string, type InferOutput, union, array } from "valibot";
 
 export const webSocketStatusValues = ['idle', 'connecting', 'scanning-qr', 'received-photo', 'scanning-ballot', 'error'] as const;
 export type WebSocketStatus = typeof webSocketStatusValues[number];
@@ -28,3 +28,23 @@ export const PrintBallotMessageSchema = object({
     status: picklist(['printed', 'failed']),
 });
 export type PrintBallotMessage = InferOutput<typeof PrintBallotMessageSchema>;
+
+export const CandidateSchema = object({
+    first_name: string(),
+    last_name: string(),
+    middle_name: string(),
+});
+export type Candidate = InferOutput<typeof CandidateSchema>;
+
+export const ScanBallotResultSchema = object({
+    candidates: array(CandidateSchema),
+});
+export type ScanBallotResult = InferOutput<typeof ScanBallotResultSchema>;
+
+export const ScanBallotErrorSchema = object({
+    error: string(),
+});
+export type ScanBallotError = InferOutput<typeof ScanBallotErrorSchema>;
+
+export const ScanBallotMessageSchema = union([ScanBallotResultSchema, ScanBallotErrorSchema]);
+export type ScanBallotMessage = ScanBallotResult | ScanBallotError;
