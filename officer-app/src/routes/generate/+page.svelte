@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onDestroy } from "svelte";
     import { Button } from "flowbite-svelte";
+    import { PrinterOutline, UploadOutline } from "flowbite-svelte-icons";
     import { is, parse } from "valibot";
 
     import {
@@ -9,8 +10,6 @@
         PUBLIC_API_PORT,
     } from "$env/static/public";
     import { type ScanResult, type ScanMessage, type WebSocketStatus, ScanMessageSchema, ScanErrorSchema, PrintBallotMessageSchema } from "$lib/types";
-    import CheckIcon from "$lib/components/checkIcon.svelte";
-    import CrossIcon from "$lib/components/crossIcon.svelte";
 
     let status: WebSocketStatus = $state("idle");
     let result: ScanResult | null = $state(null);
@@ -155,25 +154,17 @@
                 <p class="text-xl font-medium">
                     PRECINCT: {PRECINCT}
                 </p>
+                <p>
+                    STATUS:
+                    <span class="ml-1.5">
+                        {#if result.voter_status === null}
+                            <PrinterOutline size="xl" class="mr-1" /> Voter has <span class="font-medium text-xl">not</span> started with the process.
+                        {:else}
+                            <UploadOutline size="xl" class="mr-1" /> Voter's ballot has been printed, and <span class="font-medium text-xl">ready for scanning</span>.
+                        {/if}
+                    </span>
+                </p>
                 <hr />
-                <div class="flex justify-center gap-12 text-xl w-full">
-                    <div class="flex gap-2">
-                        {#if result.voter_status === 'printed'}
-                            <CheckIcon />
-                        {:else}
-                            <CrossIcon />
-                        {/if}
-                        Registered
-                    </div>
-                    <div class="flex gap-2">
-                        {#if result.voter_status === 'printed'}
-                            <CheckIcon />
-                        {:else}
-                            <CrossIcon />
-                        {/if}
-                        No ballot submission yet
-                    </div>
-                </div>
 
                 <div
                     class="flex flex-col mt-auto mb-auto items-center justify-center gap-6"
@@ -182,11 +173,19 @@
                         Does the voter match the ID photo?
                     </p>
                     <div class="flex gap-8">
-                        <Button
-                            color="green"
-                            onclick={confirmMatch}
-                            class="text-xl">Yes — Generate Ballot</Button
-                        >
+                        {#if result.voter_status === null}
+                            <Button
+                                color="green"
+                                onclick={confirmMatch}
+                                class="text-xl">Yes — Print Ballot</Button
+                            >
+                        {:else}
+                            <Button
+                                color="green"
+                                onclick={confirmMatch}
+                                class="text-xl">Yes — Scan Ballot</Button
+                            >
+                        {/if}
                         <Button
                             color="red"
                             onclick={rejectMatch}
