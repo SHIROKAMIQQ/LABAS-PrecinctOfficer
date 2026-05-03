@@ -56,11 +56,12 @@
                     status = "error";
                     errorMessage = "Ballot already generated for this voter";
                 }
-                ws?.close();
             } catch (e) {
                 status = "error";
                 errorMessage = "Malformed response from server";
                 console.error(e);
+            } finally {
+                if (ws) ws.close();
             }
         };
 
