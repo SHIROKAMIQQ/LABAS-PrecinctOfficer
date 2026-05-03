@@ -1,9 +1,4 @@
-<svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="32"
-    height="32"
-    viewBox="0 0 16 16"
->
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 16 16">
     <path
         fill="#ce0404"
         fill-rule="evenodd"
