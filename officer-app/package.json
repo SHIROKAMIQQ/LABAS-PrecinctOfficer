@@ -11,7 +11,7 @@
         "fix": "pnpm fmt:fix",
         "fmt": "prettier --experimental-cli --check .",
         "fmt:fix": "prettier --experimental-cli --write .",
-        "lint": "pnpm --parallel /^lint:/",
+        "lint": "pnpm --workspace-root --parallel /^lint:/",
         "lint:sv": "svelte-check --tsconfig ./tsconfig.json"
     },
     "devDependencies": {
