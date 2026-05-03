@@ -129,7 +129,7 @@
     {#if status === "idle"}
         <div class="flex items-center justify-center h-full">
             <Button color="primary" onclick={scanQR}>
-                Generate and Print Ballot
+                Vote!
             </Button>
         </div>
     {:else if status === "connecting"}
