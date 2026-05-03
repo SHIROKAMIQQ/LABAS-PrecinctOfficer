@@ -9,10 +9,10 @@
         PUBLIC_API_IP,
         PUBLIC_API_PORT,
     } from "$env/static/public";
-    import { type ScanResult, type ScanMessage, type WebSocketStatus, ScanMessageSchema, ScanErrorSchema, PrintBallotMessageSchema } from "$lib/types";
+    import { type ScanQRResult, type ScanQRMessage, type WebSocketStatus, ScanQRMessageSchema, ScanQRErrorSchema, PrintBallotMessageSchema } from "$lib/types";
 
     let status: WebSocketStatus = $state("idle");
-    let result: ScanResult | null = $state(null);
+    let result: ScanQRResult | null = $state(null);
     let errorMessage: string = $state("");
     let wsQR: WebSocket | null = null;
     let wsBallot: WebSocket | null = null;
@@ -41,9 +41,9 @@
 
         wsQR.onmessage = (event) => {
             try {
-                const data: ScanMessage = parse(ScanMessageSchema, JSON.parse(event.data));
+                const data: ScanQRMessage = parse(ScanQRMessageSchema, JSON.parse(event.data));
 
-                if (is(ScanErrorSchema, data)) {
+                if (is(ScanQRErrorSchema, data)) {
                     status = "error";
                     errorMessage = data.error;
                     return;

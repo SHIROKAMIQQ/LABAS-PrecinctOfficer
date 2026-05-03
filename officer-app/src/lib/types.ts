@@ -4,7 +4,7 @@ export const webSocketStatusValues = ['idle', 'connecting', 'scanning-qr', 'rece
 export type WebSocketStatus = typeof webSocketStatusValues[number];
 
 const voterStatusValues = ['printed', 'tallied'] as const;
-export const ScanResultSchema = object({
+export const ScanQRResultSchema = object({
     uin: string(),
     demographics: object({
         location1_eng: string(),
@@ -14,15 +14,15 @@ export const ScanResultSchema = object({
     precinct: string(),
     voter_status: nullable(picklist(voterStatusValues)),
 });
-export type ScanResult = InferOutput<typeof ScanResultSchema>;
+export type ScanQRResult = InferOutput<typeof ScanQRResultSchema>;
 
-export const ScanErrorSchema = object({
+export const ScanQRErrorSchema = object({
     error: string(),
 });
-export type ScanError = InferOutput<typeof ScanErrorSchema>;
+export type ScanQRError = InferOutput<typeof ScanQRErrorSchema>;
 
-export const ScanMessageSchema = union([ScanResultSchema, ScanErrorSchema]);
-export type ScanMessage = ScanResult | ScanError;
+export const ScanQRMessageSchema = union([ScanQRResultSchema, ScanQRErrorSchema]);
+export type ScanQRMessage = ScanQRResult | ScanQRError;
 
 export const PrintBallotMessageSchema = object({
     status: picklist(['printed', 'failed']),
