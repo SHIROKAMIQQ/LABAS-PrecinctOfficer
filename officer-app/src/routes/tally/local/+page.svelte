@@ -4,9 +4,6 @@
     import { MapPinAltOutline } from 'flowbite-svelte-icons';
     import { goto } from '$app/navigation';
 
-    // For testing purposes
-    console.log(encodeURIComponent('City of Las Piñas'));
-
     function selectCity(city: string, isNCR: boolean = true) {
         if (isNCR) {
             goto(`/tally/local?province=${encodeURIComponent('Metro Manila')}&city=${encodeURIComponent(city)}`);
