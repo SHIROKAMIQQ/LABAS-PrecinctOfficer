@@ -113,7 +113,7 @@
     }
 
     onDestroy(() => {
-        ws?.close();
+        if (ws) ws.close();
     });
 </script>
 
