@@ -1,14 +1,21 @@
-export type ScanResult = {
-    uin: string;
-    demographics: Record<string, string>;
-    registered_voter: boolean;
-    precinct: string;
-    voted: boolean;
-    photo: string; // base64 string
-};
+import { nullable, object, picklist, string, type InferOutput, union } from "valibot";
 
-export type ScanError = {
-    error: string;
-};
+const voterStatusValues = ['printed', 'tallied'] as const;
+export const ScanResultSchema = object({
+    uin: string(),
+    demographics: object({
+        location1_eng: string(),
+        location3_eng: string(),
+    }),
+    photo: string(), // base64 string
+    voter_status: nullable(picklist(voterStatusValues)),
+});
+export type ScanResult = InferOutput<typeof ScanResultSchema>;
 
+export const ScanErrorSchema = object({
+    error: string(),
+});
+export type ScanError = InferOutput<typeof ScanErrorSchema>;
+
+export const ScanMessageSchema = union([ScanResultSchema, ScanErrorSchema]);
 export type ScanMessage = ScanResult | ScanError;
