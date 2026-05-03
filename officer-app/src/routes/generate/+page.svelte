@@ -6,19 +6,11 @@
         PUBLIC_API_IP,
         PUBLIC_API_PORT,
     } from "$env/static/public";
-    import type { ScanResult, ScanMessage } from "$lib/types";
+    import type { ScanResult, ScanMessage, WebSocketStatus } from "$lib/types";
     import CheckIcon from "$lib/components/checkIcon.svelte";
     import CrossIcon from "$lib/components/crossIcon.svelte";
 
-    type Status =
-        | "idle"
-        | "connecting"
-        | "waiting"
-        | "received"
-        | "error"
-        | "mismatch";
-
-    let status: Status = $state("idle");
+    let status: WebSocketStatus = $state("idle");
     let result: ScanResult | null = $state(null);
     let errorMessage: string = $state("");
     let ws: WebSocket | null = null;
