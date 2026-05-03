@@ -50,11 +50,11 @@
                 console.log("City:", result.demographics.location1_eng);
                 console.log("Province:", result.demographics.location3_eng);
 
-                if (result.voter_status === null) {
-                    status = "received";
-                } else {
+                if (result.voter_status === 'tallied') {
                     status = "error";
-                    errorMessage = "Ballot already generated for this voter";
+                    errorMessage = "Voter is already done with the process";
+                } else {
+                    status = "received";
                 }
             } catch (e) {
                 status = "error";
