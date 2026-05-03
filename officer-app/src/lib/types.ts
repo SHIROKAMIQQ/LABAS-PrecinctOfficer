@@ -19,3 +19,8 @@ export type ScanError = InferOutput<typeof ScanErrorSchema>;
 
 export const ScanMessageSchema = union([ScanResultSchema, ScanErrorSchema]);
 export type ScanMessage = ScanResult | ScanError;
+
+export const PrintBallotMessageSchema = object({
+    status: picklist(['printed', 'failed']),
+});
+export type PrintBallotMessage = InferOutput<typeof PrintBallotMessageSchema>;
