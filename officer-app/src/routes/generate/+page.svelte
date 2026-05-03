@@ -147,12 +147,12 @@
                 alt="Voter Appearance"
                 class="aspect-square h-[75vh] object-cover rounded-sm border"
             />
-            <div class="flex flex-col gap-6 p-2 w-full">
-                <p class="text-gray-600 text-xl font-mono tracking-widest">
-                    UIN: {result.uin}
+            <div class="flex flex-col gap-6 p-2 w-full [&>p]:text-xl [&>p>span]:text-xl">
+                <p>
+                    UIN: <span class="ml-1.5 text-gray-600 font-mono tracking-widest">{result.uin}</span>
                 </p>
-                <p class="text-xl font-medium">
-                    PRECINCT: {PRECINCT}
+                <p>
+                    PRECINCT: <span class="ml-1.5 font-medium">{PRECINCT}</span>
                 </p>
                 <p>
                     STATUS:
