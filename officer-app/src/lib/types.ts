@@ -18,7 +18,7 @@ export const ScanQRResultSchema = object({
         location3_eng: string(),
     }),
     photo: string(), // base64 string
-    precinct: string(),
+    precinct: nullable(string()),
     voter_status: nullable(picklist(voterStatusValues)),
 });
 export type ScanQRResult = InferOutput<typeof ScanQRResultSchema>;
