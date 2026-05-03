@@ -1,12 +1,14 @@
 <script lang="ts">
     import { onDestroy } from "svelte";
     import { Button } from "flowbite-svelte";
+    import { is, parse } from "valibot";
+
     import {
         PUBLIC_DEVICE_ID,
         PUBLIC_API_IP,
         PUBLIC_API_PORT,
     } from "$env/static/public";
-    import type { ScanResult, ScanMessage, WebSocketStatus } from "$lib/types";
+    import { type ScanResult, type ScanMessage, type WebSocketStatus, ScanMessageSchema, ScanErrorSchema, PrintBallotMessageSchema } from "$lib/types";
     import CheckIcon from "$lib/components/checkIcon.svelte";
     import CrossIcon from "$lib/components/crossIcon.svelte";
 
@@ -35,9 +37,9 @@
 
         ws.onmessage = (event) => {
             try {
-                const data: ScanMessage = JSON.parse(event.data);
+                const data: ScanMessage = parse(ScanMessageSchema, JSON.parse(event.data));
 
-                if ("error" in data) {
+                if (is(ScanErrorSchema, data)) {
                     status = "error";
                     errorMessage = data.error;
                     return;
@@ -48,19 +50,11 @@
                 console.log("City:", result.demographics.location1_eng);
                 console.log("Province:", result.demographics.location3_eng);
 
-                if (result.registered_voter === false) {
-                    status = "error";
-                    errorMessage = "Not a registered voter.";
-                } else if (result.voted === true) {
-                    status = "error";
-                    errorMessage = "Voter has already voted.";
-                } else if (result.precinct !== null) {
-                    status = "error";
-                    errorMessage =
-                        "Ballot already generated for this voter in precinct: " +
-                        result.precinct;
-                } else {
+                if (result.voter_status === null) {
                     status = "received";
+                } else {
+                    status = "error";
+                    errorMessage = "Ballot already generated for this voter";
                 }
                 ws?.close();
             } catch (e) {
@@ -94,7 +88,9 @@
             const response = await fetch(url);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-            const data = await response.json();
+            const data = parse(PrintBallotMessageSchema, await response.json());
+            if (data.status === 'failed') throw new Error('Failed to send ballot to printer');
+
             console.log("Printed:", data);
             reset();
         } catch (err) {
@@ -159,7 +155,7 @@
                 <hr />
                 <div class="flex justify-center gap-12 text-xl w-full">
                     <div class="flex gap-2">
-                        {#if result.registered_voter}
+                        {#if result.voter_status === 'printed'}
                             <CheckIcon />
                         {:else}
                             <CrossIcon />
@@ -167,7 +163,7 @@
                         Registered
                     </div>
                     <div class="flex gap-2">
-                        {#if !result.voted}
+                        {#if result.voter_status === 'printed'}
                             <CheckIcon />
                         {:else}
                             <CrossIcon />
