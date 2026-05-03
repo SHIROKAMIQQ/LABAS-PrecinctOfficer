@@ -1,35 +1,35 @@
 <script lang="ts">
-	import './layout.css';
-	import favicon from '$lib/assets/favicon.svg';
-	import { page } from "$app/state";
-  	import { Navbar, NavBrand, NavLi, NavUl, NavHamburger } from "flowbite-svelte";
+    import './layout.css';
+    import favicon from '$lib/assets/favicon.svg';
+    import { page } from '$app/state';
+    import { Navbar, NavBrand, NavLi, NavUl, NavHamburger } from 'flowbite-svelte';
 
-	let activeUrl = $derived(
-		page.url.pathname.startsWith("/local") ? "/local" : page.url.pathname
-	);
-	let showTally = $derived(page.url.pathname.startsWith("/tally") ? true : false);
+    let activeUrl = $derived(page.url.pathname.startsWith('/local') ? '/local' : page.url.pathname);
+    let showTally = $derived(page.url.pathname.startsWith('/tally') ? true : false);
 
-	let { children } = $props();
+    let { children } = $props();
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
-<div id="main" class="flex items-center justify-center min-h-screen">
-	<Navbar class="absolute top-0 left-0 border-b-1">
-		<NavBrand href="/">
-			<span class="self-center m-6 text-2xl font-semibold whitespace-nowrap dark:text-white">L.A.B.A.S.</span>
-		</NavBrand>
-		<NavHamburger />
-		<NavUl {activeUrl}>
-			<NavLi href="/" class="text-xl">Home</NavLi>
-			{#if showTally}
-				<NavLi href="/tally" class="text-xl">National</NavLi>
-				<NavLi href="/tally/local" class="text-xl">Local</NavLi>
-			{/if}
-		</NavUl>
-	</Navbar>
-	
-	<div class="flex justify-center w-full mx-auto mt-20 p-10">
-		{@render children()}
-	</div>
+<div id="main" class="flex min-h-screen items-center justify-center">
+    <Navbar class="absolute top-0 left-0 border-b-1">
+        <NavBrand href="/">
+            <span class="m-6 self-center text-2xl font-semibold whitespace-nowrap dark:text-white"
+                >L.A.B.A.S.</span
+            >
+        </NavBrand>
+        <NavHamburger />
+        <NavUl {activeUrl}>
+            <NavLi href="/" class="text-xl">Home</NavLi>
+            {#if showTally}
+                <NavLi href="/tally" class="text-xl">National</NavLi>
+                <NavLi href="/tally/local" class="text-xl">Local</NavLi>
+            {/if}
+        </NavUl>
+    </Navbar>
+
+    <div class="mx-auto mt-20 flex w-full justify-center p-10">
+        {@render children()}
+    </div>
 </div>

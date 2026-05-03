@@ -1,114 +1,116 @@
 <script lang="ts">
     //@ts-nocheck
-    import type { ApexOptions } from "apexcharts";
-    import { Chart } from "@flowbite-svelte-plugins/chart";
-    import { Card, A, Button, Dropdown, DropdownItem } from "flowbite-svelte";
-    import { ArrowUpOutline, ChevronDownOutline, ChevronRightOutline } from "flowbite-svelte-icons";
+    import type { ApexOptions } from 'apexcharts';
+    import { Chart } from '@flowbite-svelte-plugins/chart';
+    import { Card, A, Button, Dropdown, DropdownItem } from 'flowbite-svelte';
+    import { ArrowUpOutline, ChevronDownOutline, ChevronRightOutline } from 'flowbite-svelte-icons';
 
     let { title, candidates } = $props();
-    let totalVotes = candidates.map(item => item.vote).reduce((accumulator, current) => accumulator + current, 0);
-    let dynamicHeight = $derived(Math.max(300, (candidates.length * 25) + 50));
+    let totalVotes = candidates
+        .map((item) => item.vote)
+        .reduce((accumulator, current) => accumulator + current, 0);
+    let dynamicHeight = $derived(Math.max(300, candidates.length * 25 + 50));
 
     const options: ApexOptions = {
-    series: [
-      {
-        name: "Votes",
-        color: "#31C48D",
-        data: candidates.sort((a, b) => b.vote - a.vote).map(item => item.vote) // candidate votes
-      },
-    ],
-    chart: {
-      sparkline: {
-        enabled: false
-      },
-      type: "bar",
-      width: "100%",
-      height: dynamicHeight,
-      toolbar: {
-        show: false
-      }
-    },
-    fill: {
-      opacity: 1
-    },
-    plotOptions: {
-      bar: {
-        horizontal: true,
-        columnWidth: "100%",
-        borderRadiusApplication: "end",
-        borderRadius: 6,
+        series: [
+            {
+                name: 'Votes',
+                color: '#31C48D',
+                data: candidates.sort((a, b) => b.vote - a.vote).map((item) => item.vote), // candidate votes
+            },
+        ],
+        chart: {
+            sparkline: {
+                enabled: false,
+            },
+            type: 'bar',
+            width: '100%',
+            height: dynamicHeight,
+            toolbar: {
+                show: false,
+            },
+        },
+        fill: {
+            opacity: 1,
+        },
+        plotOptions: {
+            bar: {
+                horizontal: true,
+                columnWidth: '100%',
+                borderRadiusApplication: 'end',
+                borderRadius: 6,
+                dataLabels: {
+                    position: 'center',
+                },
+            },
+        },
+        legend: {
+            show: true,
+            position: 'bottom',
+        },
         dataLabels: {
-          position: "center"
-        }
-      }
-    },
-    legend: {
-      show: true,
-      position: "bottom"
-    },
-    dataLabels: {
-      enabled: true
-    },
-    tooltip: {
-      shared: true,
-      intersect: false
-    },
-    xaxis: {
-      labels: {
-        show: true,
-        style: {
-          fontFamily: "Inter, sans-serif",
-          cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
+            enabled: true,
         },
-        formatter: (value) => value.toLocaleString()
-      },
-      categories: candidates.sort((a, b) => b.vote - a.vote).map(item => item.name), // candidate names
-      axisTicks: {
-        show: false
-      },
-      axisBorder: {
-        show: false
-      }
-    },
-    yaxis: {
-      labels: {
-        show: true,
-        style: {
-          fontFamily: "Inter, sans-serif",
-          cssClass: "text-xs font-normal fill-gray-500 dark:fill-gray-400"
+        tooltip: {
+            shared: true,
+            intersect: false,
         },
-      }
-    },
-    grid: {
-      show: true,
-      strokeDashArray: 4,
-      padding: {
-        left: 10,
-        right: 2,
-        top: -20
-      }
-    }
-  };
+        xaxis: {
+            labels: {
+                show: true,
+                style: {
+                    fontFamily: 'Inter, sans-serif',
+                    cssClass: 'text-xs font-normal fill-gray-500 dark:fill-gray-400',
+                },
+                formatter: (value) => value.toLocaleString(),
+            },
+            categories: candidates.sort((a, b) => b.vote - a.vote).map((item) => item.name), // candidate names
+            axisTicks: {
+                show: false,
+            },
+            axisBorder: {
+                show: false,
+            },
+        },
+        yaxis: {
+            labels: {
+                show: true,
+                style: {
+                    fontFamily: 'Inter, sans-serif',
+                    cssClass: 'text-xs font-normal fill-gray-500 dark:fill-gray-400',
+                },
+            },
+        },
+        grid: {
+            show: true,
+            strokeDashArray: 4,
+            padding: {
+                left: 10,
+                right: 2,
+                top: -20,
+            },
+        },
+    };
 </script>
 
-<Card class="p-4 mt-4 md:p-6 max-w-full!">
-  <div class="flex justify-between border-b border-gray-200 pb-3 dark:border-gray-700">
-    <dl>
-      <dt class="pb-1 text-base font-normal text-gray-500 dark:text-gray-400">Elections</dt>
-      <dd class="text-3xl leading-none font-bold text-gray-900 dark:text-white">{title}</dd>
-    </dl>
-  </div>
+<Card class="mt-4 max-w-full! p-4 md:p-6">
+    <div class="flex justify-between border-b border-gray-200 pb-3 dark:border-gray-700">
+        <dl>
+            <dt class="pb-1 text-base font-normal text-gray-500 dark:text-gray-400">Elections</dt>
+            <dd class="text-3xl leading-none font-bold text-gray-900 dark:text-white">{title}</dd>
+        </dl>
+    </div>
 
-  <div class="grid grid-cols-2 py-3">
-    <dl>
-      <dt class="pb-1 text-base font-normal text-gray-500 dark:text-gray-400">Total Votes</dt>
-      <dd class="text-xl leading-none font-bold text-green-500 dark:text-green-400">{totalVotes}</dd>
-    </dl>
-  </div>
+    <div class="grid grid-cols-2 py-3">
+        <dl>
+            <dt class="pb-1 text-base font-normal text-gray-500 dark:text-gray-400">Total Votes</dt>
+            <dd class="text-xl leading-none font-bold text-green-500 dark:text-green-400">
+                {totalVotes}
+            </dd>
+        </dl>
+    </div>
 
-  <Chart {options} />
-
-  
+    <Chart {options} />
 </Card>
 
 <!-- <div class="grid grid-cols-1 items-center justify-between border-t border-gray-200 dark:border-gray-700">

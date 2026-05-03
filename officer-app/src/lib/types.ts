@@ -1,7 +1,14 @@
-import { nullable, object, picklist, string, type InferOutput, union, array } from "valibot";
+import { nullable, object, picklist, string, type InferOutput, union, array } from 'valibot';
 
-export const webSocketStatusValues = ['idle', 'connecting', 'scanning-qr', 'received-photo', 'scanning-ballot', 'error'] as const;
-export type WebSocketStatus = typeof webSocketStatusValues[number];
+export const webSocketStatusValues = [
+    'idle',
+    'connecting',
+    'scanning-qr',
+    'received-photo',
+    'scanning-ballot',
+    'error',
+] as const;
+export type WebSocketStatus = (typeof webSocketStatusValues)[number];
 
 const voterStatusValues = ['printed', 'tallied'] as const;
 export const ScanQRResultSchema = object({
