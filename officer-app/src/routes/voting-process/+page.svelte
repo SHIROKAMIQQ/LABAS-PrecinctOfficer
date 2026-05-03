@@ -208,6 +208,16 @@
             </p>
             <Button color="light" onclick={reset}>Reset</Button>
         </div>
+    {:else if status === "scanning-ballot"}
+        <div class="flex flex-col items-center justify-center h-full gap-4">
+            <div class="animate-pulse text-lg">
+                Waiting for ballot capture...
+            </div>
+            <p class="text-sm text-gray-500">
+                Have the voter place their ballot on the ballot scanner.
+            </p>
+            <Button color="light" onclick={reset}>Cancel</Button>
+        </div>
     {:else}
         <!-- Then status is error -->
         <div
