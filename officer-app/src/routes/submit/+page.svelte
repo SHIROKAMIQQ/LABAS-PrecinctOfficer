@@ -6,15 +6,21 @@
         PUBLIC_API_IP,
         PUBLIC_API_PORT,
     } from "$env/static/public";
+    import formal_picture from "$lib/assets/formal_picture.jpg";
     import type { ScanResult, ScanMessage } from "$lib/types";
     import CheckIcon from "$lib/components/checkIcon.svelte";
     import CrossIcon from "$lib/components/crossIcon.svelte";
+
+    // Hardcoded precinct location
+    const PRECINCT = "UP Diliman";
 
     type Status =
         | "idle"
         | "connecting"
         | "waiting"
-        | "received"
+        | "received template"
+        | "capturing"
+        | "received ballot"
         | "error"
         | "mismatch";
 
@@ -23,11 +29,21 @@
     let errorMessage: string = $state("");
     let ws: WebSocket | null = null;
 
-    const PRECINCT = "UP Diliman";
+    // const DUMMY_DATA = {
+    //     uin: "1234567890",
+    //     demographics: {
+    //         location1_eng: "Angeles City",
+    //         location3_eng: "Pampanga",
+    //     },
+    //     registered_voter: true,
+    //     precinct: "Up Diliman",
+    //     voted: false,
+    //     photo: formal_picture,
+    // };
 
     // Build photo based on display_pic.py
     const photoSrc = $derived(
-        result?.photo ? `data:image/jpeg;base64,${result.photo}` : "",
+        result!.photo ? `data:image/jpeg;base64,${result!.photo}` : "",
     );
 
     // After calling, it waits for the QR scanner to connect, then once scanned it waits for the server's response
@@ -57,9 +73,6 @@
                 }
 
                 result = data;
-                console.log("demographics:", result.demographics);
-                console.log("City:", result.demographics.location1_eng);
-                console.log("Province:", result.demographics.location3_eng);
 
                 if (result.registered_voter === false) {
                     status = "error";
@@ -67,13 +80,13 @@
                 } else if (result.voted === true) {
                     status = "error";
                     errorMessage = "Voter has already voted.";
-                } else if (result.precinct !== null) {
+                } else if (result.precinct !== PRECINCT) {
                     status = "error";
                     errorMessage =
-                        "Ballot already generated for this voter in precinct: " +
+                        "Ballot Submission precinct is different from where voter claimed their ballot." +
                         result.precinct;
                 } else {
-                    status = "received";
+                    status = "received template";
                 }
                 ws?.close();
             } catch (e) {
@@ -96,20 +109,23 @@
 
     async function confirmMatch() {
         const params = new URLSearchParams({
-            province: result.demographics.location3_eng,
-            city: result.demographics.location1_eng,
-            uin: result.uin,
+            uin: result!.uin,
         });
 
-        const url = `http://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/print-ballot?${params}`;
+        const url = `http://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/get-ballot-template?${params}`;
 
         try {
             const response = await fetch(url);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-            const data = await response.json();
-            console.log("Printed:", data);
-            reset();
+            const coordinates = await response.json();
+            console.log("coordinates:", coordinates);
+            status = "capturing";
+
+            // TODO: call some api to trigger the ballot capture
+
+            // TODO: once ballot is captured, use both the coordinates and the captured ballot as
+            // parameters of the function made by dale & lian
         } catch (err) {
             console.error("Print failed:", err);
             // show error toast
@@ -134,9 +150,7 @@
 <div id="container" class="flex flex-col w-full h-[80vh] p-6 gap-4">
     {#if status === "idle"}
         <div class="flex items-center justify-center h-full">
-            <Button color="primary" onclick={startScan}>
-                Generate and Print Ballot
-            </Button>
+            <Button color="primary" onclick={startScan}>Submit Ballot</Button>
         </div>
     {:else if status === "connecting"}
         <div class="flex flex-col items-center justify-center h-full gap-4">
@@ -153,7 +167,7 @@
             </p>
             <Button color="light" onclick={reset}>Cancel</Button>
         </div>
-    {:else if status === "received" && result}
+    {:else if status === "received template" && result}
         <div class="flex gap-8">
             <img
                 src={photoSrc}
@@ -165,7 +179,7 @@
                     UIN: {result.uin}
                 </p>
                 <p class="text-xl font-medium">
-                    PRECINCT: {PRECINCT}
+                    PRECINCT: {result.precinct}
                 </p>
                 <hr />
                 <div class="flex justify-center gap-12 text-xl w-full">
@@ -197,7 +211,7 @@
                         <Button
                             color="green"
                             onclick={confirmMatch}
-                            class="text-xl">Yes — Generate Ballot</Button
+                            class="text-xl">Yes — Scan Ballot</Button
                         >
                         <Button
                             color="red"
@@ -207,6 +221,16 @@
                     </div>
                 </div>
             </div>
+        </div>
+    {:else if status === "capturing"}
+        <div class="flex flex-col items-center justify-center h-full gap-4">
+            <div class="animate-pulse text-lg">
+                Waiting for ballot capture...
+            </div>
+            <p class="text-sm text-gray-500">
+                Have the voter place their ballot on the ballot scanner.
+            </p>
+            <Button color="light" onclick={reset}>Cancel</Button>
         </div>
     {:else if status === "mismatch"}
         <div
@@ -229,4 +253,3 @@
         </div>
     {/if}
 </div>
-

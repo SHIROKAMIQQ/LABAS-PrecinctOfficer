@@ -1,8 +1,8 @@
-import type { PageLoad } from './$types';
+import type { PageLoad } from "./$types";
 
 export const load: PageLoad = ({ params }) => {
-  return {
-    province: params.province,
-    city: params.city
-  };
+    return {
+        province: params.province,
+        city: params.city,
+    };
 };
