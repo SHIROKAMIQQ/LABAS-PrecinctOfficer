@@ -13,6 +13,9 @@
         ScanQRErrorSchema,
         PrintBallotMessageSchema,
         type PrintBallotMessage,
+        ScanBallotMessageSchema,
+        type ScanBallotResult,
+        type ScanBallotMessage,
     } from '$lib/types';
 
     let status: WebSocketStatus = $state('idle');
@@ -22,8 +25,11 @@
     let resultQR: ScanQRResult | null = $state(null);
 
     let wsBallot: WebSocket | null = $state(null);
+    let isAcknowledged = $state(false);
+    let resultBallot: ScanBallotResult | null = $state(null);
 
     const PRECINCT = 'UP Diliman';
+    const COMPONENT = 'pc';
 
     function closeWebSockets() {
         [wsQR, wsBallot].forEach((ws) => {
@@ -117,8 +123,73 @@
         }
     }
 
-    function scanBallot() {
-        status = 'scanning-ballot';
+    function displayVoterReceipt() {
+        closeWebSockets();
+
+        status = 'connecting';
+        errorMessage = '';
+        resultBallot = null;
+
+        const url = `ws://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/scan-ballot/${PUBLIC_DEVICE_ID}/${COMPONENT}`;
+        wsBallot = new WebSocket(url);
+
+        wsBallot.onopen = () => {
+            if (resultQR === null) {
+                status = 'error';
+                errorMessage = 'No voter associated with ballot. Please try again.';
+                closeWebSockets();
+                return;
+            } else if (wsBallot === null) {
+                status = 'error';
+                errorMessage = 'No open WebSocket connection yet. Please try again.';
+                closeWebSockets();
+                return;
+            }
+
+            console.log('WebSocket open, waiting for scan...');
+            status = 'scanning-ballot';
+
+            // At this point wsBallot.readyState === WebSocket.OPEN
+            // So, send uin to server
+            wsBallot.send(JSON.stringify({
+                type: 'uin',
+                payload: resultQR.uin
+            }));
+        };
+
+        wsBallot.onmessage = (event) => {
+            try {
+                // We should be receiving an ack for the very first message, then the voter receipts afterwards
+                const data: ScanBallotMessage = parse(ScanBallotMessageSchema, JSON.parse(event.data));
+
+                if (data.type === 'ack' && !isAcknowledged) {
+                    // then first message
+                    isAcknowledged = true;
+                    return;
+                } else if (data.type !== 'candidates display') {
+                    // then a server-side error occurred
+                    status = 'error';
+                    errorMessage = data.payload;
+                    return;
+                }
+
+                resultBallot = data;
+            } catch (e) {
+                status = 'error';
+                errorMessage = 'Malformed response from server';
+                console.error(e);
+            }
+        };
+
+        wsBallot.onerror = (e) => {
+            console.error('WebSocket error:', e);
+            status = 'error';
+            errorMessage = 'Connection error';
+        };
+
+        wsBallot.onclose = () => {
+            console.log('WebSocket closed');
+        };
     }
 
     function rejectPhotoMatch() {
