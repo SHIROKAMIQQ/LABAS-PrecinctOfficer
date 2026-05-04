@@ -153,6 +153,7 @@
     function reset() {
         status = 'idle';
         errorMessage = '';
+        isScanningBallot = false;
     }
 
     onDestroy(() => {
