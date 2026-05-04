@@ -59,18 +59,19 @@ export type ScanBallotMessage = ScanBallotResult | ScanBallotError;
 const GetTallyEntrySchema = object({
     candidate_id: number(),
     first_name: string(),
-    middle_name: string(),
+    middle_name: nullable(string()),
     last_name: string(),
-    party: string(),
+    party: nullable(string()),
     position_id: number(),
     position_name: string(),
     scope_id: picklist([1, 2, 3]),
     scope_name: string(),
-    province_id: string(),
-    province_name: string(),
-    city_id: string(),
-    city_name: string(),
+    province_id: nullable(string()),
+    province_name: nullable(string()),
+    city_id: nullable(string()),
+    city_name: nullable(string()),
     votecount: number()
 });
+
 export const GetTallyResultSchema = array(GetTallyEntrySchema);
-export type TallyResultScehama = InferOutput<typeof GetTallyResultSchema>;
+export type GetTallyResult = InferOutput<typeof GetTallyResultSchema>;

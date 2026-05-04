@@ -28,7 +28,7 @@
         </NavUl>
     </Navbar>
 
-    <div class="mx-auto mt-20 flex w-full justify-center p-10">
+    <div class="mx-auto mt-20 w-full justify-center p-10">
         {@render children()}
     </div>
 </div>
