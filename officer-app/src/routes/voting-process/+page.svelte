@@ -243,8 +243,9 @@
 
     function reset() {
         status = 'idle';
-        resultQR = null;
         errorMessage = '';
+        resultQR = null;
+        resultBallot = null;
     }
 
     onDestroy(() => {
