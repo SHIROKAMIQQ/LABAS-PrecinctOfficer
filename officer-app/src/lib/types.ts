@@ -10,6 +10,11 @@ export const webSocketStatusValues = [
 ] as const;
 export type WebSocketStatus = (typeof webSocketStatusValues)[number];
 
+export const FastAPIHTTPExceptionSchema = object({
+    detail: string(),
+});
+export type FastAPIHTTPException = InferOutput<typeof FastAPIHTTPExceptionSchema>;
+
 const voterStatusValues = ['printed', 'tallied'] as const;
 export const ScanQRResultSchema = object({
     uin: string(),
