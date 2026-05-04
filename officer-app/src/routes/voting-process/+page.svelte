@@ -342,7 +342,10 @@
                 <p>No candidate found</p>
             {/if}
 
-            <Button color="light" onclick={reset}>Cancel</Button>
+            <div class="flex gap-8">
+                <Button color="green" onclick={async () => {await tallyVotes()}}>Confirm Voter Receipt</Button>
+                <Button color="red" onclick={reset}>Cancel</Button>
+            </div>
         </div>
     {:else}
         <!-- Then status is error -->
