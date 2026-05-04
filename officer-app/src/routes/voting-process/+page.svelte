@@ -313,7 +313,7 @@
                                 class="text-xl">Yes — Print Ballot</Button
                             >
                         {:else}
-                            <Button color="green" onclick={scanBallot} class="text-xl"
+                            <Button color="green" onclick={displayVoterReceipt} class="text-xl"
                                 >Yes — Scan Ballot</Button
                             >
                         {/if}
@@ -326,10 +326,22 @@
         </div>
     {:else if status === 'scanning-ballot'}
         <div class="flex h-full flex-col items-center justify-center gap-4">
-            <div class="animate-pulse text-lg">Waiting for ballot capture...</div>
-            <p class="text-sm text-gray-500">
+            <p class="text-sm text-gray-500 font-bold">
                 Have the voter place their ballot on the ballot scanner.
             </p>
+
+            <p>Voter Receipt</p>
+            {#if resultBallot !== null}
+                {#each resultBallot.payload as candidate}
+                    <p>{candidate.last_name.toUpperCase()}, {candidate.first_name} {candidate.middle_name[0].toUpperCase()}</p>
+                {:else}
+                    <p>No candidate found</p>
+                {/each}
+            
+            {:else}
+                <p>No candidate found</p>
+            {/if}
+
             <Button color="light" onclick={reset}>Cancel</Button>
         </div>
     {:else}
