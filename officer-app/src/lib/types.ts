@@ -41,6 +41,14 @@ export const PrintBallotMessageSchema = object({
 });
 export type PrintBallotMessage = InferOutput<typeof PrintBallotMessageSchema>;
 
+export const TallyStatusSchema = object({
+    status: string(),
+});
+export type TallyStatus = InferOutput<typeof TallyStatusSchema>;
+
+export const TallyMessageSchema = union([TallyStatusSchema, FastAPIHTTPExceptionSchema]);
+export type TallyMessage = TallyStatus | FastAPIHTTPException;
+
 export const CandidateSchema = object({
     first_name: string(),
     last_name: string(),
