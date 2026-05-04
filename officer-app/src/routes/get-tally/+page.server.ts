@@ -1,5 +1,6 @@
 import { parse } from 'valibot';
 import { GetTallyResultSchema } from '$lib/types';
+import { PUBLIC_API_IP, PUBLIC_API_PORT } from '$env/static/public';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ fetch, url }) => {
@@ -18,7 +19,7 @@ export const load: PageServerLoad = async ({ fetch, url }) => {
 // for fetching tally data
 async function getTally(fetchFn: typeof fetch, province: string, city: string) {
     const response = await fetchFn(
-        `http://165.245.190.93:8000/get-tally?province=${province}&city=${city}`,
+        `http://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/get-tally?province=${province}&city=${city}`,
     );
     parse(GetTallyResultSchema, JSON.parse(await response.text()));
 }
