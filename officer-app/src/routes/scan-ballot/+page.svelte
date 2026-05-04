@@ -131,6 +131,14 @@
         }, 'image/jpeg', 1);
     }
 
+    // Close device camera
+    function closeCamera() {
+        if (camera === null) return;
+
+        camera.getTracks().forEach(track => track.stop());
+        camera = null;
+    }
+
     $effect(() => {
         let scanBallotInterval: number | null = null;
         if (isScanningBallot) {
@@ -138,6 +146,7 @@
         } else if (scanBallotInterval !== null) {
             clearInterval(scanBallotInterval);
             isScanningBallot = false;
+            closeCamera();
         }
     });
 
@@ -148,6 +157,7 @@
 
     onDestroy(() => {
         closeWebSockets();
+        closeCamera();
     });
 </script>
 
