@@ -1,23 +1,19 @@
 <script lang="ts">
-    //@ts-nocheck
-    // import { tally_json } from "$lib/raw_json"
-    // import { getVotes, getData } from '$lib/ballot_data';
     import { Button, Card, Dropdown, DropdownItem } from 'flowbite-svelte';
     import { MapPinAltOutline, ChevronDownOutline } from 'flowbite-svelte-icons';
     import Tally from '$lib/components/ranking.svelte';
-    import { page } from '$app/state';
     import { goto } from '$app/navigation';
 
-    function selectCity(city: string, isNCR: boolean = true) {
+    async function selectCity(city: string, isNCR: boolean = true) {
         if (isNCR) {
-            goto(`/get-tally?province=${encodeURIComponent('Metro Manila')}&city=${encodeURIComponent(city)}`);
+            await goto(`/get-tally?province=${encodeURIComponent('Metro Manila')}&city=${encodeURIComponent(city)}`);
         } else {
-            goto(`/get-tally?province=${encodeURIComponent(city)}&city=${encodeURIComponent(city)}`);
+            await goto(`/get-tally?province=${encodeURIComponent(city)}&city=${encodeURIComponent(city)}`);
         }
     }
 
-    function selectProvince(province: string) {
-        goto(`/get-tally?province=${encodeURIComponent(province)}`);
+    async function selectProvince(province: string) {
+        await goto(`/get-tally?province=${encodeURIComponent(province)}`);
     }
 
     const metro_manila_cities = [
@@ -148,7 +144,7 @@
     ];
 
     let { data } = $props();
-    let tally_json = $state(data.data);
+    let tally_json = $derived(data.tallyData);
 </script>
 
 <section>
