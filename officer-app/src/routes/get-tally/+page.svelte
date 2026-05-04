@@ -5,11 +5,12 @@
     import { goto } from '$app/navigation';
 
     async function selectCity(city: string, isNCR: boolean = true) {
-        if (isNCR) {
-            await goto(`/get-tally?province=${encodeURIComponent('Metropolitan Manila Second District')}&city=${encodeURIComponent(city)}`);
-        } else {
-            await goto(`/get-tally?province=${encodeURIComponent(city)}&city=${encodeURIComponent(city)}`);
-        }
+        await goto(`/get-tally?city=${encodeURIComponent(city)}`); 
+        // if (isNCR) {
+        //     await goto(`/get-tally?province=${encodeURIComponent('Metropolitan Manila Second District')}&city=${encodeURIComponent(city)}`);
+        // } else {
+        //     await goto(`/get-tally?province=${encodeURIComponent(city)}&city=${encodeURIComponent(city)}`);
+        // }
     }
 
     async function selectProvince(province: string) {
