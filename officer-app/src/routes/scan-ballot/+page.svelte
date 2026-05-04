@@ -134,20 +134,22 @@
         if (ctx === null) return;
         ctx.drawImage(feedDisplay, 0, 0, imageSender.width, imageSender.height);
 
+        // Get base 64 encoded byte stream
+        const imageDataURL = imageSender.toDataURL('image/png', 1);
+        const [, imageStr,] = imageDataURL.split(',');
+
+        if (typeof imageStr === 'undefined') {
+            console.error(`No base 64 string. Image Data URL: ${imageDataURL}`);
+        }
+
         // Send to server
-        imageSender.toBlob(
-            (image) => {
-                if (image !== null && wsBallot !== null && wsBallot.readyState === WebSocket.OPEN)
-                    wsBallot.send(
-                        JSON.stringify({
-                            type: 'image',
-                            payload: image,
-                        }),
-                    );
-            },
-            'image/jpeg',
-            1,
-        );
+        if (wsBallot !== null && wsBallot.readyState === WebSocket.OPEN)
+            wsBallot.send(
+                JSON.stringify({
+                    type: 'image',
+                    payload: imageStr,
+                }),
+            );
     }
 
     // Close device camera
