@@ -74,4 +74,4 @@ const GetTallyEntrySchema = object({
 });
 
 export const GetTallyResultSchema = array(GetTallyEntrySchema);
-export type TallyResultScehama = InferOutput<typeof GetTallyResultSchema>;
+export type GetTallyResult = InferOutput<typeof GetTallyResultSchema>;

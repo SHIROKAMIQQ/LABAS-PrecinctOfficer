@@ -64,6 +64,7 @@
                 },
                 formatter: (value) => value.toLocaleString(),
             },
+            tickAmount: 3,
             categories: candidates.sort((a, b) => b.vote - a.vote).map((item) => item.name), // candidate names
             axisTicks: {
                 show: false,

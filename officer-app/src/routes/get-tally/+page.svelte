@@ -1,11 +1,13 @@
 <script lang="ts">
-    import { Button, Card, Dropdown, DropdownItem } from 'flowbite-svelte';
-    import { MapPinAltOutline, ChevronDownOutline } from 'flowbite-svelte-icons';
+    import { Button, Card } from 'flowbite-svelte';
+    import { MapPinAltOutline } from 'flowbite-svelte-icons';
     import Tally from '$lib/components/ranking.svelte';
     import { goto } from '$app/navigation';
+    import type { GetTallyResult } from '$lib/types';
 
     async function selectCity(city: string, isNCR: boolean = true) {
         await goto(`/get-tally?city=${encodeURIComponent(city)}`); 
+        // SIDNEY TODO: Remove this if not really needed anymore
         // if (isNCR) {
         //     await goto(`/get-tally?province=${encodeURIComponent('Metropolitan Manila Second District')}&city=${encodeURIComponent(city)}`);
         // } else {
@@ -17,6 +19,39 @@
         await goto(`/get-tally?province=${encodeURIComponent(province)}`);
     }
 
+    function groupByPosition(tallyResult: GetTallyResult) {
+        const positions: Record<number, {
+            position_id: number;
+            title: string;
+            scope: string;
+            candidates: { name: string; vote: number }[];
+        }> = {};
+
+        for (const candidate of tallyResult) {
+            // Create position entry if not yet existing
+            if (!positions[candidate.position_id]) {
+                positions[candidate.position_id] = {
+                    position_id: candidate.position_id,
+                    title: candidate.position_name,
+                    scope: candidate.scope_name,
+                    candidates: [],
+                }
+            }
+
+            positions[candidate.position_id].candidates.push({
+                name: `${candidate.last_name}, ${candidate.first_name} ${candidate.middle_name}`.trim(),
+                vote: candidate.votecount,
+            });
+        }
+
+        return Object.values(positions);
+    }
+
+    let { data } = $props();
+    let positions = $derived(data.tallyData ? groupByPosition(data.tallyData) : []);
+    // let tally_json = $derived(data.tallyData);
+
+    // TODO: Ideally, this would not be hardcoded and would be read off the database or an endpoint
     const metro_manila_cities = [
         'City of Caloocan',
         'City of Las Piñas',
@@ -32,13 +67,13 @@
         'City of Taguig',
         'City of Valenzuela',
         'City of Manila',
-        'City of Pasay',
-        'City of Pateros ',
-        'City of Quezon',
+        'Pasay City',
+        'Pateros',
+        'Quezon City',
     ];
 
     const independent_cities = [
-        'City of Angeles',
+        'Angeles City',
         'City of Bacolod',
         'City of Baguio',
         'City of Butuan',
@@ -143,16 +178,25 @@
         'Zamboanga del Sur',
         'Zamboanga Sibugay',
     ];
-
-    let { data } = $props();
-    let tally_json = $derived(data.tallyData);
 </script>
 
-<section>
-    <div>
-        <h2 class="mb-2 p-2 text-2xl font-bold">Local Elections</h2>
-    </div>
+{#if positions.length > 0}
+    <section class="mx-4">
+        <!-- #key is necessary to force the chart to update when clicking new city/province -->
+        {#key data.tallyData}
+            {#each positions as position (position.position_id)}
+                <Tally 
+                    title={`${position.title} (${position.scope})`}
+                    candidates={position.candidates}
+                />
+            {/each}
+        {/key}
+    </section>
+{:else}
+    <p class="mt-4 text-red-500">Failed to load tally data.</p>
+{/if}
 
+<section>
     <Card class="my-5 max-w-full p-4">
         <div id="Metro Manila" class="m-4">
             <h2 class="mb-3 border-b-2 border-gray-400 p-2 text-center text-xl font-bold">
@@ -231,4 +275,4 @@ national - president, vp, senators HoR (party list)
 provincial - governor, vice gov, board members
 city - mayor, vice mayor, councilors
 district - HoR (district), congressional candidates
--->
+ -->
