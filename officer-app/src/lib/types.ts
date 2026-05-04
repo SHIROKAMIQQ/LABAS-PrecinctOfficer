@@ -1,4 +1,4 @@
-import { nullable, object, picklist, number, string, type InferOutput, union, array } from 'valibot';
+import { nullable, object, picklist, number, string, type InferOutput, union, array, variant, literal } from 'valibot';
 
 export const webSocketStatusValues = [
     'idle',
@@ -57,18 +57,22 @@ export const CandidateSchema = object({
 });
 export type Candidate = InferOutput<typeof CandidateSchema>;
 
+export const scanBallotMessageTypeValues = ['candidates display', 'ack', 'error'] as const;
+
+export const ScanBallotStatusSchema = object({
+    type: picklist(['ack', 'error']),
+    payload: string(),
+});
+export type ScanBallotStatus = InferOutput<typeof ScanBallotStatusSchema>;
+
 export const ScanBallotResultSchema = object({
-    candidates: array(CandidateSchema),
+    type: literal('candidates display'),
+    payload: array(CandidateSchema),
 });
 export type ScanBallotResult = InferOutput<typeof ScanBallotResultSchema>;
 
-export const ScanBallotErrorSchema = object({
-    error: string(),
-});
-export type ScanBallotError = InferOutput<typeof ScanBallotErrorSchema>;
-
-export const ScanBallotMessageSchema = union([ScanBallotResultSchema, ScanBallotErrorSchema]);
-export type ScanBallotMessage = ScanBallotResult | ScanBallotError;
+export const ScanBallotMessageSchema = variant('type', [ScanBallotStatusSchema, ScanBallotResultSchema]);
+export type ScanBallotMessage = ScanBallotStatus | ScanBallotResult;
 
 const GetTallyEntrySchema = object({
     candidate_id: number(),
