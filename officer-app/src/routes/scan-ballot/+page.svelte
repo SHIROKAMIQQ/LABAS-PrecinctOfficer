@@ -7,7 +7,9 @@
     import { ScanBallotStatusSchema, type ScanBallotStatus, type WebSocketStatus } from '$lib/types';
 
     let feedDisplay: HTMLVideoElement | null = $state(null);
+    let camera: MediaStream | null = $state(null);
     let imageSender: HTMLCanvasElement | null = $state(null);
+    let isScanningBallot = $state(false);
 
     let status: WebSocketStatus = $state('idle');
     let errorMessage: string = $state('');
@@ -66,6 +68,33 @@
             console.log('WebSocket closed');
         };
     }
+
+    // Open camera once ballot scanner display is up
+    async function openCamera() {
+        try {
+            camera = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        } catch (e) {
+            status = 'error';
+            errorMessage = 'Camera failed to open. Please try again.';
+            console.error(e);
+        }
+    }
+
+    // Will be called if values of feedDisplay, status, and camera changes
+    // Display video once feedDisplay is mounted
+    async function displayFeed() {
+        if (feedDisplay === null || (status === 'scanning-ballot' && isScanningBallot)) return;
+
+        await openCamera();
+        // If error, camera didn't open, otherwise
+        if (status !== 'error') {
+            feedDisplay.srcObject = camera;
+            feedDisplay.play();
+            isScanningBallot = true;
+        }
+    }
+
+    $effect(() => { displayFeed(); });
 
     function reset() {
         status = 'idle';
