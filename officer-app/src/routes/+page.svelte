@@ -15,7 +15,7 @@
             title: 'View',
             label: 'Tally Board',
             description: 'Live results and turnout for the current precinct',
-            href: '/tally',
+            href: '/get-tally',
             bg: 'bg-[#FCD116]', // yellow
             hoverBg: 'hover:bg-[#d9b210]',
             cta: 'Open Dashboard',
