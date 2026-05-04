@@ -12,17 +12,27 @@
         ScanQRMessageSchema,
         ScanQRErrorSchema,
         PrintBallotMessageSchema,
+        type PrintBallotMessage,
+        ScanBallotMessageSchema,
+        type ScanBallotResult,
+        type ScanBallotMessage,
+        type TallyMessage,
+        TallyMessageSchema,
+        FastAPIHTTPExceptionSchema,
     } from '$lib/types';
 
     let status: WebSocketStatus = $state('idle');
     let errorMessage: string = $state('');
 
-    let wsQR: WebSocket | null = null;
+    let wsQR: WebSocket | null = $state(null);
     let resultQR: ScanQRResult | null = $state(null);
 
-    let wsBallot: WebSocket | null = null;
+    let wsBallot: WebSocket | null = $state(null);
+    let isAcknowledged = $state(false);
+    let resultBallot: ScanBallotResult | null = $state(null);
 
     const PRECINCT = 'UP Diliman';
+    const COMPONENT = 'pc';
 
     function closeWebSockets() {
         [wsQR, wsBallot].forEach((ws) => {
@@ -105,19 +115,129 @@
             const response = await fetch(url);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-            const data = parse(PrintBallotMessageSchema, await response.json());
-            if (data.status === 'failed') throw new Error('Failed to send ballot to printer');
+            const data: PrintBallotMessage = parse(PrintBallotMessageSchema, await response.json());
+            if (data.status === 'failed') throw new Error('Failed to send ballot to printer.');
 
-            console.log('Printed:', data);
             reset();
         } catch (err) {
+            status = 'error';
+            errorMessage = err instanceof Error ? err.message : 'Failed to send ballot to printer.';
             console.error('Print failed:', err);
-            // show error toast
         }
     }
 
-    function scanBallot() {
-        status = 'scanning-ballot';
+    function displayVoterReceipt() {
+        closeWebSockets();
+
+        status = 'connecting';
+        errorMessage = '';
+        resultBallot = null;
+
+        const url = `ws://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/scan-ballot/${PUBLIC_DEVICE_ID}/${COMPONENT}`;
+        wsBallot = new WebSocket(url);
+
+        wsBallot.onopen = () => {
+            if (resultQR === null) {
+                status = 'error';
+                errorMessage = 'No voter associated with ballot. Please try again.';
+                closeWebSockets();
+                return;
+            } else if (wsBallot === null) {
+                status = 'error';
+                errorMessage = 'No open WebSocket connection yet. Please try again.';
+                closeWebSockets();
+                return;
+            }
+
+            console.log('WebSocket open, waiting for scan...');
+            status = 'scanning-ballot';
+
+            // At this point wsBallot.readyState === WebSocket.OPEN
+            // So, send uin to server
+            wsBallot.send(
+                JSON.stringify({
+                    type: 'uin',
+                    payload: resultQR.uin,
+                }),
+            );
+        };
+
+        wsBallot.onmessage = (event) => {
+            try {
+                // We should be receiving an ack for the very first message, then the voter receipts afterwards
+                const data: ScanBallotMessage = parse(
+                    ScanBallotMessageSchema,
+                    JSON.parse(event.data),
+                );
+
+                if (data.type === 'ack' && !isAcknowledged) {
+                    // then first message
+                    isAcknowledged = true;
+                    return;
+                } else if (data.type !== 'candidates display') {
+                    // then a server-side error occurred
+                    status = 'error';
+                    errorMessage = data.payload;
+                    return;
+                }
+
+                resultBallot = data;
+            } catch (e) {
+                status = 'error';
+                errorMessage = 'Malformed response from server';
+                console.error(e);
+            }
+        };
+
+        wsBallot.onerror = (e) => {
+            console.error('WebSocket error:', e);
+            status = 'error';
+            errorMessage = 'Connection error';
+        };
+
+        wsBallot.onclose = () => {
+            console.log('WebSocket closed');
+        };
+    }
+
+    // Tally!
+    async function tallyVotes() {
+        // Handle errors
+        if (resultQR === null) {
+            status = 'error';
+            errorMessage = 'No voter associated with ballot. Please try again.';
+            return;
+        } else if (resultBallot === null) {
+            status = 'error';
+            errorMessage = 'Ballot was not scanned. Please try again.';
+            return;
+        }
+
+        try {
+            // Send to server
+            const url = `http://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/tally`;
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    uin: resultQR.uin,
+                    candidate_ids: resultBallot.payload.map((candidate) => candidate.candidate_id),
+                }),
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const data: TallyMessage = parse(TallyMessageSchema, await response.json());
+            if (is(FastAPIHTTPExceptionSchema, data)) throw new Error('Failed to tally votes.');
+
+            reset();
+        } catch (err) {
+            status = 'error';
+            errorMessage = err instanceof Error ? err.message : 'Failed to tally votes';
+            console.error(err);
+        }
     }
 
     function rejectPhotoMatch() {
@@ -128,8 +248,9 @@
 
     function reset() {
         status = 'idle';
-        resultQR = null;
         errorMessage = '';
+        resultQR = null;
+        resultBallot = null;
     }
 
     onDestroy(() => {
@@ -197,7 +318,7 @@
                                 class="text-xl">Yes — Print Ballot</Button
                             >
                         {:else}
-                            <Button color="green" onclick={scanBallot} class="text-xl"
+                            <Button color="green" onclick={displayVoterReceipt} class="text-xl"
                                 >Yes — Scan Ballot</Button
                             >
                         {/if}
@@ -210,11 +331,33 @@
         </div>
     {:else if status === 'scanning-ballot'}
         <div class="flex h-full flex-col items-center justify-center gap-4">
-            <div class="animate-pulse text-lg">Waiting for ballot capture...</div>
-            <p class="text-sm text-gray-500">
+            <p class="text-sm font-bold text-gray-500">
                 Have the voter place their ballot on the ballot scanner.
             </p>
-            <Button color="light" onclick={reset}>Cancel</Button>
+
+            <p>Voter Receipt</p>
+            {#if resultBallot !== null}
+                {#each resultBallot.payload as candidate}
+                    <p>
+                        {candidate.last_name.toUpperCase()}, {candidate.first_name}
+                        {candidate.middle_name[0].toUpperCase()}
+                    </p>
+                {:else}
+                    <p>No candidate found</p>
+                {/each}
+            {:else}
+                <p>No candidate found</p>
+            {/if}
+
+            <div class="flex gap-8">
+                <Button
+                    color="green"
+                    onclick={async () => {
+                        await tallyVotes();
+                    }}>Confirm Voter Receipt</Button
+                >
+                <Button color="red" onclick={reset}>Cancel</Button>
+            </div>
         </div>
     {:else}
         <!-- Then status is error -->

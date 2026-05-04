@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ fetch, url }) => {
     const params = new URLSearchParams('');
     if (province !== null) params.set('province', province);
     if (city !== null) params.set('city', city);
-    
+
     const tallyData = await getTally(fetch, params);
     return { tallyData };
 };
@@ -22,11 +22,11 @@ async function getTally(fetchFn: typeof fetch, params: URLSearchParams) {
         `http://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/get-tally?${params}`,
         {
             headers: {
-                'Access-Control-Allow-Origin': '*'
-            }
-        }
+                'Access-Control-Allow-Origin': '*',
+            },
+        },
     );
-    
+
     if (!response.ok) throw error(response.status, response.statusText);
 
     return parse(GetTallyResultSchema, JSON.parse(await response.text()));
