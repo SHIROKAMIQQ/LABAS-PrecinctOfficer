@@ -6,6 +6,9 @@
     import { PUBLIC_DEVICE_ID, PUBLIC_API_IP, PUBLIC_API_PORT } from '$env/static/public';
     import { ScanBallotStatusSchema, type ScanBallotStatus, type WebSocketStatus } from '$lib/types';
 
+    let feedDisplay: HTMLVideoElement | null = $state(null);
+    let imageSender: HTMLCanvasElement | null = $state(null);
+
     let status: WebSocketStatus = $state('idle');
     let errorMessage: string = $state('');
 
@@ -84,6 +87,9 @@
             <p class="text-sm text-gray-500 font-bold">
                 Have the voter place their ballot on the camera.
             </p>
+
+            <video bind:this={feedDisplay}></video>
+            <canvas bind:this={imageSender} class="hidden"></canvas>
         </div>
     {:else}
         <!-- Then status is error -->
