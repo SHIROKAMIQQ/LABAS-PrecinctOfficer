@@ -111,8 +111,9 @@
 
             reset();
         } catch (err) {
+            status = 'error';
+            errorMessage = (err instanceof Error) ? err.message : 'Failed to send ballot to printer.';
             console.error('Print failed:', err);
-            // show error toast
         }
     }
 
