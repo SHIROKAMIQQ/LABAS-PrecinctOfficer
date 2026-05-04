@@ -20,6 +20,11 @@ export const load: PageServerLoad = async ({ fetch, url }) => {
 async function getTally(fetchFn: typeof fetch, params: URLSearchParams) {
     const response = await fetchFn(
         `http://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/get-tally?${params}`,
+        {
+            headers: {
+                'Access-Control-Allow-Origin': '*'
+            }
+        }
     );
     
     if (!response.ok) throw error(response.status, response.statusText);
