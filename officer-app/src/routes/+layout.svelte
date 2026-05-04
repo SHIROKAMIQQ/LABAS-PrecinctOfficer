@@ -5,7 +5,7 @@
     import { Navbar, NavBrand, NavLi, NavUl, NavHamburger } from 'flowbite-svelte';
 
     let activeUrl = $derived(page.url.pathname.startsWith('/local') ? '/local' : page.url.pathname);
-    let showTally = $derived(page.url.pathname.startsWith('/tally') ? true : false);
+    let showTally = $derived(page.url.pathname.startsWith('/get-tally') ? true : false);
 
     let { children } = $props();
 </script>
@@ -23,8 +23,8 @@
         <NavUl {activeUrl}>
             <NavLi href="/" class="text-xl">Home</NavLi>
             {#if showTally}
-                <NavLi href="/tally" class="text-xl">National</NavLi>
-                <NavLi href="/tally/local" class="text-xl">Local</NavLi>
+                <NavLi href="/get-tally" class="text-xl">National</NavLi>
+                <NavLi href="/get-tally/local" class="text-xl">Local</NavLi>
             {/if}
         </NavUl>
     </Navbar>

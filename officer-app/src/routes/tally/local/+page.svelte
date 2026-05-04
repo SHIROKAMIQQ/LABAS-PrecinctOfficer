@@ -6,14 +6,14 @@
 
     function selectCity(city: string, isNCR: boolean = true) {
         if (isNCR) {
-            goto(`/tally/local?province=${encodeURIComponent('Metro Manila')}&city=${encodeURIComponent(city)}`);
+            goto(`/get-tally/local?province=${encodeURIComponent('Metro Manila')}&city=${encodeURIComponent(city)}`);
         } else {
-            goto(`/tally/local?province=${encodeURIComponent(city)}&city=${encodeURIComponent(city)}`);
+            goto(`/get-tally/local?province=${encodeURIComponent(city)}&city=${encodeURIComponent(city)}`);
         }
     }
 
     function selectProvince(province: string) {
-        goto(`/tally/local?province=${encodeURIComponent(province)}`);
+        goto(`/get-tally/local?province=${encodeURIComponent(province)}`);
     }
 
     const metro_manila_cities = [
