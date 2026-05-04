@@ -24,5 +24,5 @@ async function getTally(fetchFn: typeof fetch, params: URLSearchParams) {
     
     if (!response.ok) throw error(response.status, response.statusText);
 
-    parse(GetTallyResultSchema, JSON.parse(await response.text()));
+    return parse(GetTallyResultSchema, JSON.parse(await response.text()));
 }
