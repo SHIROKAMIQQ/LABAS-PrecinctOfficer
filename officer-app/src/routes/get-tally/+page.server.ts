@@ -12,8 +12,8 @@ export const load: PageServerLoad = async ({ fetch, url }) => {
     if (province !== null) params.set('province', province);
     if (city !== null) params.set('city', city);
     
-    const data = await getTally(fetch, params);
-    return { data };
+    const tallyData = await getTally(fetch, params);
+    return { tallyData };
 };
 
 // for fetching tally data
