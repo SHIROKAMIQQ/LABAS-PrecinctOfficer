@@ -50,6 +50,7 @@ export const TallyMessageSchema = union([TallyStatusSchema, FastAPIHTTPException
 export type TallyMessage = TallyStatus | FastAPIHTTPException;
 
 export const CandidateSchema = object({
+    candidate_id: string(),
     first_name: string(),
     last_name: string(),
     middle_name: string(),
