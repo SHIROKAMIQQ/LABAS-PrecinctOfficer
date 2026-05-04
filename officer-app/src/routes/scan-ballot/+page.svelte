@@ -96,6 +96,51 @@
 
     $effect(() => { displayFeed(); });
 
+    // Scan ballot once camera is up
+    function scanBallot() {
+        if (wsBallot === null) {
+            status = 'error';
+            errorMessage = 'No WebSocket connection yet. Please try again';
+            isScanningBallot = false;
+            return;
+        } else if (feedDisplay === null) {
+            status = 'error';
+            errorMessage = 'No feed display mounted yet. Please try again.';
+            return;
+        } else if (imageSender === null) {
+            status = 'error';
+            errorMessage = 'No image sender mounted yet. Please try again.';
+            return;
+        }
+
+        // Draw the image
+        imageSender.width = feedDisplay.videoWidth;
+        imageSender.height = feedDisplay.videoHeight;
+        const ctx = imageSender.getContext('2d');
+
+        if (ctx === null) return;
+        ctx.drawImage(feedDisplay, 0, 0, imageSender.width, imageSender.height);
+
+        // Send to server
+        imageSender.toBlob((image) => {
+            if (image !== null && wsBallot !== null && wsBallot.readyState === WebSocket.OPEN)
+                wsBallot.send(JSON.stringify({
+                    type: 'image',
+                    payload: image,
+                }));
+        }, 'image/jpeg', 1);
+    }
+
+    $effect(() => {
+        let scanBallotInterval: number | null = null;
+        if (isScanningBallot) {
+            scanBallotInterval = setInterval(scanBallot, 1000);
+        } else if (scanBallotInterval !== null) {
+            clearInterval(scanBallotInterval);
+            isScanningBallot = false;
+        }
+    });
+
     function reset() {
         status = 'idle';
         errorMessage = '';
