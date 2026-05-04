@@ -17,10 +17,10 @@
     let status: WebSocketStatus = $state('idle');
     let errorMessage: string = $state('');
 
-    let wsQR: WebSocket | null = null;
+    let wsQR: WebSocket | null = $state(null);
     let resultQR: ScanQRResult | null = $state(null);
 
-    let wsBallot: WebSocket | null = null;
+    let wsBallot: WebSocket | null = $state(null);
 
     const PRECINCT = 'UP Diliman';
 
