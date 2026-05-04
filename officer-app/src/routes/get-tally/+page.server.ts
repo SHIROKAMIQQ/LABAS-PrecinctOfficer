@@ -1,5 +1,5 @@
 import { getData } from '$lib/ballot_data';
-import type { PageServerLoad } from './local/$types';
+import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ fetch, url }) => {
     const province = url.searchParams.get('province');

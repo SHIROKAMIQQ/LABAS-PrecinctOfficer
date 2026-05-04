@@ -1,19 +1,23 @@
 <script lang="ts">
+    //@ts-nocheck
+    // import { tally_json } from "$lib/raw_json"
     import { getVotes, getData } from '$lib/ballot_data';
-    import { Button, Card } from 'flowbite-svelte';
-    import { MapPinAltOutline } from 'flowbite-svelte-icons';
+    import { Button, Card, Dropdown, DropdownItem } from 'flowbite-svelte';
+    import { MapPinAltOutline, ChevronDownOutline } from 'flowbite-svelte-icons';
+    import Tally from '$lib/components/ranking.svelte';
+    import { page } from '$app/state';
     import { goto } from '$app/navigation';
 
     function selectCity(city: string, isNCR: boolean = true) {
         if (isNCR) {
-            goto(`/get-tally/local?province=${encodeURIComponent('Metro Manila')}&city=${encodeURIComponent(city)}`);
+            goto(`/get-tally?province=${encodeURIComponent('Metro Manila')}&city=${encodeURIComponent(city)}`);
         } else {
-            goto(`/get-tally/local?province=${encodeURIComponent(city)}&city=${encodeURIComponent(city)}`);
+            goto(`/get-tally?province=${encodeURIComponent(city)}&city=${encodeURIComponent(city)}`);
         }
     }
 
     function selectProvince(province: string) {
-        goto(`/get-tally/local?province=${encodeURIComponent(province)}`);
+        goto(`/get-tally?province=${encodeURIComponent(province)}`);
     }
 
     const metro_manila_cities = [
@@ -142,6 +146,9 @@
         'Zamboanga del Sur',
         'Zamboanga Sibugay',
     ];
+
+    let { data } = $props();
+    let tally_json = $state(data.data);
 </script>
 
 <section>
@@ -194,3 +201,37 @@
         </div>
     </Card>
 </section>
+
+<!-- SIDNEY: I commented out the parts below because I transferred the contents of tally/local/+page.svelte to tally/+page.svelte -->
+<!-- <section>
+    <div>
+        <h1 class="mb-2 p-2 text-3xl font-bold">{tally_json.election.title}</h1>
+    </div>
+
+    <div>
+        <Button class="px-3 py-2 w-32 bg-(--color-custom-green)!">
+            {selected}<ChevronDownOutline class="ms-1.5 h-2.5 w-2.5" />
+         </Button>
+        <Dropdown simple class="w-48 overflow-y-auto max-h-60">
+            {#each seriesDropdown as name}
+            <DropdownItem  onclick={() => handleSelect(name)}>
+                {name}
+            </DropdownItem>
+            {/each}
+      </Dropdown>
+    </div> -->
+
+    <!-- Bar chart for each position -->
+    <!-- {#each tally_json.positions as position (position.position_id)}
+        {#if position.scope === 'National'}
+            <Tally title={position.title} candidates={getVotes(position.candidates)} />
+        {/if}
+    {/each}
+</section> -->
+
+<!-- 
+national - president, vp, senators HoR (party list)
+provincial - governor, vice gov, board members
+city - mayor, vice mayor, councilors
+district - HoR (district), congressional candidates
+-->
