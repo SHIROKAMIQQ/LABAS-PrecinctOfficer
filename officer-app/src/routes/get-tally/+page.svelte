@@ -1,7 +1,7 @@
 <script lang="ts">
     //@ts-nocheck
     // import { tally_json } from "$lib/raw_json"
-    import { getVotes, getData } from '$lib/ballot_data';
+    // import { getVotes, getData } from '$lib/ballot_data';
     import { Button, Card, Dropdown, DropdownItem } from 'flowbite-svelte';
     import { MapPinAltOutline, ChevronDownOutline } from 'flowbite-svelte-icons';
     import Tally from '$lib/components/ranking.svelte';
