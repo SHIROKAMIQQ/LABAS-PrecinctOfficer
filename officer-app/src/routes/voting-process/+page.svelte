@@ -12,6 +12,7 @@
         ScanQRMessageSchema,
         ScanQRErrorSchema,
         PrintBallotMessageSchema,
+        type PrintBallotMessage,
     } from '$lib/types';
 
     let status: WebSocketStatus = $state('idle');
@@ -105,10 +106,9 @@
             const response = await fetch(url);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-            const data = parse(PrintBallotMessageSchema, await response.json());
-            if (data.status === 'failed') throw new Error('Failed to send ballot to printer');
+            const data: PrintBallotMessage = parse(PrintBallotMessageSchema, await response.json());
+            if (data.status === 'failed') throw new Error('Failed to send ballot to printer.');
 
-            console.log('Printed:', data);
             reset();
         } catch (err) {
             console.error('Print failed:', err);
