@@ -278,8 +278,8 @@
       </Dropdown>
     </div> -->
 
-    <!-- Bar chart for each position -->
-    <!-- {#each tally_json.positions as position (position.position_id)}
+<!-- Bar chart for each position -->
+<!-- {#each tally_json.positions as position (position.position_id)}
         {#if position.scope === 'National'}
             <Tally title={position.title} candidates={getVotes(position.candidates)} />
         {/if}

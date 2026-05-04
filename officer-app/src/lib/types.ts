@@ -1,4 +1,15 @@
-import { nullable, object, picklist, number, string, type InferOutput, union, array, variant, literal } from 'valibot';
+import {
+    nullable,
+    object,
+    picklist,
+    number,
+    string,
+    type InferOutput,
+    union,
+    array,
+    variant,
+    literal,
+} from 'valibot';
 
 export const webSocketStatusValues = [
     'idle',
@@ -71,7 +82,10 @@ export const ScanBallotResultSchema = object({
 });
 export type ScanBallotResult = InferOutput<typeof ScanBallotResultSchema>;
 
-export const ScanBallotMessageSchema = variant('type', [ScanBallotStatusSchema, ScanBallotResultSchema]);
+export const ScanBallotMessageSchema = variant('type', [
+    ScanBallotStatusSchema,
+    ScanBallotResultSchema,
+]);
 export type ScanBallotMessage = ScanBallotStatus | ScanBallotResult;
 
 const GetTallyEntrySchema = object({
@@ -88,7 +102,7 @@ const GetTallyEntrySchema = object({
     province_name: nullable(string()),
     city_id: nullable(string()),
     city_name: nullable(string()),
-    votecount: number()
+    votecount: number(),
 });
 
 export const GetTallyResultSchema = array(GetTallyEntrySchema);

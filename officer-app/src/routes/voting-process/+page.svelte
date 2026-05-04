@@ -121,7 +121,7 @@
             reset();
         } catch (err) {
             status = 'error';
-            errorMessage = (err instanceof Error) ? err.message : 'Failed to send ballot to printer.';
+            errorMessage = err instanceof Error ? err.message : 'Failed to send ballot to printer.';
             console.error('Print failed:', err);
         }
     }
@@ -154,16 +154,21 @@
 
             // At this point wsBallot.readyState === WebSocket.OPEN
             // So, send uin to server
-            wsBallot.send(JSON.stringify({
-                type: 'uin',
-                payload: resultQR.uin
-            }));
+            wsBallot.send(
+                JSON.stringify({
+                    type: 'uin',
+                    payload: resultQR.uin,
+                }),
+            );
         };
 
         wsBallot.onmessage = (event) => {
             try {
                 // We should be receiving an ack for the very first message, then the voter receipts afterwards
-                const data: ScanBallotMessage = parse(ScanBallotMessageSchema, JSON.parse(event.data));
+                const data: ScanBallotMessage = parse(
+                    ScanBallotMessageSchema,
+                    JSON.parse(event.data),
+                );
 
                 if (data.type === 'ack' && !isAcknowledged) {
                     // then first message
@@ -219,7 +224,7 @@
                 },
                 body: JSON.stringify({
                     uin: resultQR.uin,
-                    candidate_ids: resultBallot.payload.map(candidate => candidate.candidate_id),
+                    candidate_ids: resultBallot.payload.map((candidate) => candidate.candidate_id),
                 }),
             });
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -230,7 +235,7 @@
             reset();
         } catch (err) {
             status = 'error';
-            errorMessage = (err instanceof Error) ? err.message : 'Failed to tally votes';
+            errorMessage = err instanceof Error ? err.message : 'Failed to tally votes';
             console.error(err);
         }
     }
@@ -326,24 +331,31 @@
         </div>
     {:else if status === 'scanning-ballot'}
         <div class="flex h-full flex-col items-center justify-center gap-4">
-            <p class="text-sm text-gray-500 font-bold">
+            <p class="text-sm font-bold text-gray-500">
                 Have the voter place their ballot on the ballot scanner.
             </p>
 
             <p>Voter Receipt</p>
             {#if resultBallot !== null}
                 {#each resultBallot.payload as candidate}
-                    <p>{candidate.last_name.toUpperCase()}, {candidate.first_name} {candidate.middle_name[0].toUpperCase()}</p>
+                    <p>
+                        {candidate.last_name.toUpperCase()}, {candidate.first_name}
+                        {candidate.middle_name[0].toUpperCase()}
+                    </p>
                 {:else}
                     <p>No candidate found</p>
                 {/each}
-            
             {:else}
                 <p>No candidate found</p>
             {/if}
 
             <div class="flex gap-8">
-                <Button color="green" onclick={async () => {await tallyVotes()}}>Confirm Voter Receipt</Button>
+                <Button
+                    color="green"
+                    onclick={async () => {
+                        await tallyVotes();
+                    }}>Confirm Voter Receipt</Button
+                >
                 <Button color="red" onclick={reset}>Cancel</Button>
             </div>
         </div>

@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ fetch, url }) => {
     const params = new URLSearchParams('');
     if (province !== null) params.set('province', province);
     if (city !== null) params.set('city', city);
-    
+
     const tallyData = await getTally(fetch, params);
     return { tallyData };
 };
@@ -26,7 +26,7 @@ async function getTally(fetchFn: typeof fetch, params: URLSearchParams) {
             }
         }
     );
-    
+
     if (!response.ok) throw error(response.status, response.statusText);
 
     return parse(GetTallyResultSchema, JSON.parse(await response.text()));

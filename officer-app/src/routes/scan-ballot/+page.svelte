@@ -4,7 +4,11 @@
     import { parse } from 'valibot';
 
     import { PUBLIC_DEVICE_ID, PUBLIC_API_IP, PUBLIC_API_PORT } from '$env/static/public';
-    import { ScanBallotStatusSchema, type ScanBallotStatus, type WebSocketStatus } from '$lib/types';
+    import {
+        ScanBallotStatusSchema,
+        type ScanBallotStatus,
+        type WebSocketStatus,
+    } from '$lib/types';
 
     let feedDisplay: HTMLVideoElement | null = $state(null);
     let camera: MediaStream | null = $state(null);
@@ -19,7 +23,9 @@
     const COMPONENT = 'phone';
 
     // WebSocket cannot be idle
-    $effect(() => { if (status === 'idle') startBallotScan() });
+    $effect(() => {
+        if (status === 'idle') startBallotScan();
+    });
 
     // If ever there will be multiple WebSockets
     function closeWebSockets() {
@@ -46,7 +52,10 @@
         wsBallot.onmessage = (event) => {
             // This websocket should only receive errors
             try {
-                const data: ScanBallotStatus = parse(ScanBallotStatusSchema, JSON.parse(event.data));
+                const data: ScanBallotStatus = parse(
+                    ScanBallotStatusSchema,
+                    JSON.parse(event.data),
+                );
 
                 status = 'error';
                 errorMessage = data.payload;
@@ -72,7 +81,9 @@
     // Open camera once ballot scanner display is up
     async function openCamera() {
         try {
-            camera = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            camera = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'environment' },
+            });
         } catch (e) {
             status = 'error';
             errorMessage = 'Camera failed to open. Please try again.';
@@ -94,7 +105,9 @@
         }
     }
 
-    $effect(() => { displayFeed(); });
+    $effect(() => {
+        displayFeed();
+    });
 
     // Scan ballot once camera is up
     function scanBallot() {
@@ -122,20 +135,26 @@
         ctx.drawImage(feedDisplay, 0, 0, imageSender.width, imageSender.height);
 
         // Send to server
-        imageSender.toBlob((image) => {
-            if (image !== null && wsBallot !== null && wsBallot.readyState === WebSocket.OPEN)
-                wsBallot.send(JSON.stringify({
-                    type: 'image',
-                    payload: image,
-                }));
-        }, 'image/jpeg', 1);
+        imageSender.toBlob(
+            (image) => {
+                if (image !== null && wsBallot !== null && wsBallot.readyState === WebSocket.OPEN)
+                    wsBallot.send(
+                        JSON.stringify({
+                            type: 'image',
+                            payload: image,
+                        }),
+                    );
+            },
+            'image/jpeg',
+            1,
+        );
     }
 
     // Close device camera
     function closeCamera() {
         if (camera === null) return;
 
-        camera.getTracks().forEach(track => track.stop());
+        camera.getTracks().forEach((track) => track.stop());
         camera = null;
     }
 
@@ -172,7 +191,7 @@
         </div>
     {:else if status === 'scanning-ballot'}
         <div class="flex h-full flex-col items-center justify-center gap-4">
-            <p class="text-sm text-gray-500 font-bold">
+            <p class="text-sm font-bold text-gray-500">
                 Have the voter place their ballot on the camera.
             </p>
 
