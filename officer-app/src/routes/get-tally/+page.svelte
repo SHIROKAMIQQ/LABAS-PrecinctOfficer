@@ -3,8 +3,16 @@
     import { MapPinAltOutline } from 'flowbite-svelte-icons';
     import Tally from '$lib/components/ranking.svelte';
     import { goto } from '$app/navigation';
+    import { page } from '$app/state';
     import type { GetTallyResult } from '$lib/types';
 
+    let hasSelection = $derived(
+        page.url.searchParams.has('city') || page.url.searchParams.has('province')
+    );
+
+    async function selectNational() {
+        await goto('/get-tally');
+    }
     async function selectCity(city: string, isNCR: boolean = true) {
         await goto(`/get-tally?city=${encodeURIComponent(city)}`); 
         // SIDNEY TODO: Remove this if not really needed anymore
@@ -179,6 +187,14 @@
         'Zamboanga Sibugay',
     ];
 </script>
+
+{#if hasSelection}
+    <div class="m-4 flex justify-center">
+        <Button onclick={selectNational} color="green">
+            View National Positions
+        </Button>
+    </div>
+{/if}
 
 {#if positions.length > 0}
     <section class="mx-4">
