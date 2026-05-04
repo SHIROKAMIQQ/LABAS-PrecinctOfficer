@@ -16,6 +16,9 @@
 
     const COMPONENT = 'phone';
 
+    // WebSocket cannot be idle
+    $effect(() => { if (status === 'idle') startBallotScan() });
+
     // If ever there will be multiple WebSockets
     function closeWebSockets() {
         [wsBallot].forEach((ws) => {
