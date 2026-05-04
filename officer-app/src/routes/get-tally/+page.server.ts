@@ -22,9 +22,9 @@ async function getTally(fetchFn: typeof fetch, params: URLSearchParams) {
         `http://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/get-tally?${params}`,
         {
             headers: {
-                'Access-Control-Allow-Origin': '*'
-            }
-        }
+                'Access-Control-Allow-Origin': '*',
+            },
+        },
     );
 
     if (!response.ok) throw error(response.status, response.statusText);

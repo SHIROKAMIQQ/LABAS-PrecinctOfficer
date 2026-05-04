@@ -7,14 +7,14 @@
     import type { GetTallyResult } from '$lib/types';
 
     let hasSelection = $derived(
-        page.url.searchParams.has('city') || page.url.searchParams.has('province')
+        page.url.searchParams.has('city') || page.url.searchParams.has('province'),
     );
 
     async function selectNational() {
         await goto('/get-tally');
     }
     async function selectCity(city: string, isNCR: boolean = true) {
-        await goto(`/get-tally?city=${encodeURIComponent(city)}`); 
+        await goto(`/get-tally?city=${encodeURIComponent(city)}`);
         // SIDNEY TODO: Remove this if not really needed anymore
         // if (isNCR) {
         //     await goto(`/get-tally?province=${encodeURIComponent('Metropolitan Manila Second District')}&city=${encodeURIComponent(city)}`);
@@ -28,12 +28,15 @@
     }
 
     function groupByPosition(tallyResult: GetTallyResult) {
-        const positions: Record<number, {
-            position_id: number;
-            title: string;
-            scope: string;
-            candidates: { name: string; vote: number }[];
-        }> = {};
+        const positions: Record<
+            number,
+            {
+                position_id: number;
+                title: string;
+                scope: string;
+                candidates: { name: string; vote: number }[];
+            }
+        > = {};
 
         for (const candidate of tallyResult) {
             // Create position entry if not yet existing
@@ -43,7 +46,7 @@
                     title: candidate.position_name,
                     scope: candidate.scope_name,
                     candidates: [],
-                }
+                };
             }
 
             positions[candidate.position_id].candidates.push({
@@ -190,9 +193,7 @@
 
 {#if hasSelection}
     <div class="m-4 flex justify-center">
-        <Button onclick={selectNational} color="green">
-            View National Positions
-        </Button>
+        <Button onclick={selectNational} color="green">View National Positions</Button>
     </div>
 {/if}
 
@@ -201,7 +202,7 @@
         <!-- #key is necessary to force the chart to update when clicking new city/province -->
         {#key data.tallyData}
             {#each positions as position (position.position_id)}
-                <Tally 
+                <Tally
                     title={`${position.title} (${position.scope})`}
                     candidates={position.candidates}
                 />
