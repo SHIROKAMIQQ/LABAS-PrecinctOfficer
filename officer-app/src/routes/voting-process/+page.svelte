@@ -16,6 +16,9 @@
         ScanBallotMessageSchema,
         type ScanBallotResult,
         type ScanBallotMessage,
+        type TallyMessage,
+        TallyMessageSchema,
+        FastAPIHTTPExceptionSchema,
     } from '$lib/types';
 
     let status: WebSocketStatus = $state('idle');
@@ -190,6 +193,46 @@
         wsBallot.onclose = () => {
             console.log('WebSocket closed');
         };
+    }
+
+    // Tally!
+    async function tallyVotes() {
+        // Handle errors
+        if (resultQR === null) {
+            status = 'error';
+            errorMessage = 'No voter associated with ballot. Please try again.';
+            return;
+        } else if (resultBallot === null) {
+            status = 'error';
+            errorMessage = 'Ballot was not scanned. Please try again.';
+            return;
+        }
+
+        try {
+            // Send to server
+            const url = `http://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/tally`;
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    uin: resultQR.uin,
+                    candidate_ids: resultBallot.payload.map(candidate => candidate.candidate_id),
+                }),
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const data: TallyMessage = parse(TallyMessageSchema, await response.json());
+            if (is(FastAPIHTTPExceptionSchema, data)) throw new Error('Failed to tally votes.');
+
+            reset();
+        } catch (err) {
+            status = 'error';
+            errorMessage = (err instanceof Error) ? err.message : 'Failed to tally votes';
+            console.error(err);
+        }
     }
 
     function rejectPhotoMatch() {
