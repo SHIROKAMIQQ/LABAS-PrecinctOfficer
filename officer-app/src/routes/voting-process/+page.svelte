@@ -337,14 +337,16 @@
 
             <p>Voter Receipt</p>
             {#if resultBallot !== null}
+                <div class="grid w-full grid-cols-2 gap-4 overflow-auto rounded border p-4">
                 {#each resultBallot.payload as candidate}
                     <p>
                         {candidate.last_name.toUpperCase()}, {candidate.first_name}
-                        {candidate.middle_name[0].toUpperCase()}
+                        {candidate.middle_name.toUpperCase()}
                     </p>
                 {:else}
                     <p>No candidate found</p>
                 {/each}
+                </div>
             {:else}
                 <p>No candidate found</p>
             {/if}
