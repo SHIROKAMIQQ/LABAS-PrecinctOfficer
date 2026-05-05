@@ -4,7 +4,7 @@
     import { PrinterOutline, UploadOutline } from 'flowbite-svelte-icons';
     import { is, parse } from 'valibot';
 
-    import { PUBLIC_DEVICE_ID, PUBLIC_API_IP, PUBLIC_API_PORT } from '$env/static/public';
+    import { PUBLIC_DEVICE_ID, PUBLIC_API_IP, PUBLIC_API_PORT, PUBLIC_API_URL } from '$env/static/public';
     import {
         type ScanQRResult,
         type ScanQRMessage,
@@ -48,7 +48,7 @@
         errorMessage = '';
         resultQR = null;
 
-        const url = `ws://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/display-pic/${PUBLIC_DEVICE_ID}`;
+        const url = `wss://${PUBLIC_API_URL}/display-pic/${PUBLIC_DEVICE_ID}`;
         wsQR = new WebSocket(url);
 
         wsQR.onopen = () => {
@@ -110,7 +110,7 @@
                 uin: resultQR.uin,
             });
 
-            const url = `http://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/print-ballot?${params}`;
+            const url = `https://${PUBLIC_API_URL}/print-ballot?${params}`;
 
             const response = await fetch(url);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -133,7 +133,7 @@
         errorMessage = '';
         resultBallot = null;
 
-        const url = `ws://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/scan-ballot/${PUBLIC_DEVICE_ID}/${COMPONENT}`;
+        const url = `wss://${PUBLIC_API_URL}/scan-ballot/${PUBLIC_DEVICE_ID}/${COMPONENT}`;
         wsBallot = new WebSocket(url);
 
         wsBallot.onopen = () => {
@@ -215,7 +215,7 @@
 
         try {
             // Send to server
-            const url = `http://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/tally`;
+            const url = `https://${PUBLIC_API_URL}/tally`;
 
             const response = await fetch(url, {
                 method: 'POST',

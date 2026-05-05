@@ -1,6 +1,6 @@
 import { parse } from 'valibot';
 import { GetTallyResultSchema } from '$lib/types';
-import { PUBLIC_API_IP, PUBLIC_API_PORT } from '$env/static/public';
+import { PUBLIC_API_URL } from '$env/static/public';
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
@@ -19,7 +19,7 @@ export const load: PageServerLoad = async ({ fetch, url }) => {
 // for fetching tally data
 async function getTally(fetchFn: typeof fetch, params: URLSearchParams) {
     const response = await fetchFn(
-        `http://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/get-tally?${params}`,
+        `https://${PUBLIC_API_URL}/get-tally?${params}`,
         {
             headers: {
                 'Access-Control-Allow-Origin': '*',

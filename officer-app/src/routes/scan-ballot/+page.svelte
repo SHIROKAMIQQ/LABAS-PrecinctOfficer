@@ -3,7 +3,7 @@
     import { onDestroy } from 'svelte';
     import { parse } from 'valibot';
 
-    import { PUBLIC_DEVICE_ID, PUBLIC_API_IP, PUBLIC_API_PORT } from '$env/static/public';
+    import { PUBLIC_DEVICE_ID, PUBLIC_API_URL } from '$env/static/public';
     import {
         ScanBallotStatusSchema,
         type ScanBallotStatus,
@@ -41,7 +41,7 @@
         status = 'connecting';
         errorMessage = '';
 
-        const url = `ws://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/scan-ballot/${PUBLIC_DEVICE_ID}/${COMPONENT}`;
+        const url = `wss://${PUBLIC_API_URL}/scan-ballot/${PUBLIC_DEVICE_ID}/${COMPONENT}`;
         wsBallot = new WebSocket(url);
 
         wsBallot.onopen = () => {
