@@ -331,10 +331,12 @@
         </div>
     {:else if status === 'scanning-ballot'}
         <div class="flex h-full flex-col items-center justify-center gap-4">
-            <p class="text-sm font-bold text-gray-500">
-                Have the voter place their ballot on the ballot scanner.
-            </p>
-
+            <div class="animate-pulse text-lg">Scanning Ballot...</div>
+            <p class="text-sm text-gray-500">Don't open the scanner until, candidates are revealed</p>
+            <Button color="light" onclick={reset}>Cancel</Button>
+        </div>
+    {:else if status === 'scanned-ballot'}
+        <div class="flex h-full flex-col items-center justify-center gap-4">
             <p>Voter Receipt</p>
             {#if resultBallot !== null}
                 <div class="grid w-full grid-cols-2 gap-4 overflow-auto rounded border p-4">
