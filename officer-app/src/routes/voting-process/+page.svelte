@@ -317,7 +317,7 @@
                                 class="text-xl">Yes — Print Ballot</Button
                             >
                         {:else}
-                            <Button color="green" onclick={displayVoterReceipt} class="text-xl"
+                            <Button color="green" onclick={async () => await scanBallot()} class="text-xl"
                                 >Yes — Scan Ballot</Button
                             >
                         {/if}
