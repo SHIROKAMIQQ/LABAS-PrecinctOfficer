@@ -13,12 +13,11 @@
         ScanQRErrorSchema,
         PrintBallotMessageSchema,
         type PrintBallotMessage,
-        ScanBallotMessageSchema,
         type ScanBallotResult,
-        type ScanBallotMessage,
         type TallyMessage,
         TallyMessageSchema,
         FastAPIHTTPExceptionSchema,
+        ScanBallotResultSchema,
     } from '$lib/types';
 
     let status: WebSocketStatus = $state('idle');
