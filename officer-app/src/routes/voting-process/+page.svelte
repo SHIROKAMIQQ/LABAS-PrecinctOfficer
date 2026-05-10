@@ -125,78 +125,37 @@
         }
     }
 
-    function displayVoterReceipt() {
-        closeWebSockets();
+    async function scanBallot() {
+        if (resultQR === null) throw new Error('No scan result');
 
-        status = 'connecting';
-        errorMessage = '';
-        resultBallot = null;
+        status = 'scanning-ballot';
 
-        const url = `ws://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/scan-ballot/${PUBLIC_DEVICE_ID}/${COMPONENT}`;
-        wsBallot = new WebSocket(url);
+        try {
+            // Send to server
+            const url = `http://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/scan-ballot`;
 
-        wsBallot.onopen = () => {
-            if (resultQR === null) {
-                status = 'error';
-                errorMessage = 'No voter associated with ballot. Please try again.';
-                closeWebSockets();
-                return;
-            } else if (wsBallot === null) {
-                status = 'error';
-                errorMessage = 'No open WebSocket connection yet. Please try again.';
-                closeWebSockets();
-                return;
-            }
-
-            console.log('WebSocket open, waiting for scan...');
-            status = 'scanning-ballot';
-
-            // At this point wsBallot.readyState === WebSocket.OPEN
-            // So, send uin to server
-            wsBallot.send(
-                JSON.stringify({
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
                     type: 'uin',
                     payload: resultQR.uin,
                 }),
-            );
-        };
+            });
 
-        wsBallot.onmessage = (event) => {
-            try {
-                // We should be receiving an ack for the very first message, then the voter receipts afterwards
-                const data: ScanBallotMessage = parse(
-                    ScanBallotMessageSchema,
-                    JSON.parse(event.data),
-                );
+            const data: ScanBallotResult = parse(ScanBallotResultSchema, await response.json());
 
-                if (data.type === 'ack' && !isAcknowledged) {
-                    // then first message
-                    isAcknowledged = true;
-                    return;
-                } else if (data.type !== 'candidates display') {
-                    // then a server-side error occurred
-                    status = 'error';
-                    errorMessage = data.payload;
-                    return;
-                }
+            if (is(FastAPIHTTPExceptionSchema, data)) throw new Error('Failed to scan ballot.');
 
-                resultBallot = data;
-            } catch (e) {
-                status = 'error';
-                errorMessage = 'Malformed response from server';
-                console.error(e);
-            }
-        };
-
-        wsBallot.onerror = (e) => {
-            console.error('WebSocket error:', e);
+            status = 'scanned-ballot';
+            resultBallot = data;
+        } catch (e) {
             status = 'error';
-            errorMessage = 'Connection error';
-        };
-
-        wsBallot.onclose = () => {
-            console.log('WebSocket closed');
-        };
+            errorMessage = String(e);
+            console.error(e);
+        }
     }
 
     // Tally!
