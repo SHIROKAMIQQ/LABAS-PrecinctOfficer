@@ -131,18 +131,11 @@
         status = 'scanning-ballot';
 
         try {
-            // Send to server
-            const url = `http://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/scan-ballot`;
-
-            const response = await fetch(url, {
+            // Trigger the scan, then send both the scanned image and uin to the server for processing
+            const response = await fetch('/api/scan', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    type: 'uin',
-                    payload: resultQR.uin,
-                }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uin: resultQR.uin }),
             });
 
             const data: ScanBallotResult = parse(ScanBallotResultSchema, await response.json());
