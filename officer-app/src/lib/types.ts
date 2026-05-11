@@ -17,6 +17,7 @@ export const webSocketStatusValues = [
     'scanning-qr',
     'received-photo',
     'scanning-ballot',
+    'scanned-ballot',
     'error',
 ] as const;
 export type WebSocketStatus = (typeof webSocketStatusValues)[number];

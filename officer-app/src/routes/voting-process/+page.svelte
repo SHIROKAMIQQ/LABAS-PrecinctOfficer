@@ -13,12 +13,11 @@
         ScanQRErrorSchema,
         PrintBallotMessageSchema,
         type PrintBallotMessage,
-        ScanBallotMessageSchema,
         type ScanBallotResult,
-        type ScanBallotMessage,
         type TallyMessage,
         TallyMessageSchema,
         FastAPIHTTPExceptionSchema,
+        ScanBallotResultSchema,
     } from '$lib/types';
 
     let status: WebSocketStatus = $state('idle');
@@ -126,78 +125,30 @@
         }
     }
 
-    function displayVoterReceipt() {
-        closeWebSockets();
+    async function scanBallot() {
+        if (resultQR === null) throw new Error('No scan result');
 
-        status = 'connecting';
-        errorMessage = '';
-        resultBallot = null;
+        status = 'scanning-ballot';
 
-        const url = `ws://${PUBLIC_API_IP}:${PUBLIC_API_PORT}/scan-ballot/${PUBLIC_DEVICE_ID}/${COMPONENT}`;
-        wsBallot = new WebSocket(url);
+        try {
+            // Trigger the scan, then send both the scanned image and uin to the server for processing
+            const response = await fetch('/api/scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uin: resultQR.uin }),
+            });
 
-        wsBallot.onopen = () => {
-            if (resultQR === null) {
-                status = 'error';
-                errorMessage = 'No voter associated with ballot. Please try again.';
-                closeWebSockets();
-                return;
-            } else if (wsBallot === null) {
-                status = 'error';
-                errorMessage = 'No open WebSocket connection yet. Please try again.';
-                closeWebSockets();
-                return;
-            }
+            const data: ScanBallotResult = parse(ScanBallotResultSchema, await response.json());
 
-            console.log('WebSocket open, waiting for scan...');
-            status = 'scanning-ballot';
+            if (is(FastAPIHTTPExceptionSchema, data)) throw new Error('Failed to scan ballot.');
 
-            // At this point wsBallot.readyState === WebSocket.OPEN
-            // So, send uin to server
-            wsBallot.send(
-                JSON.stringify({
-                    type: 'uin',
-                    payload: resultQR.uin,
-                }),
-            );
-        };
-
-        wsBallot.onmessage = (event) => {
-            try {
-                // We should be receiving an ack for the very first message, then the voter receipts afterwards
-                const data: ScanBallotMessage = parse(
-                    ScanBallotMessageSchema,
-                    JSON.parse(event.data),
-                );
-
-                if (data.type === 'ack' && !isAcknowledged) {
-                    // then first message
-                    isAcknowledged = true;
-                    return;
-                } else if (data.type !== 'candidates display') {
-                    // then a server-side error occurred
-                    status = 'error';
-                    errorMessage = data.payload;
-                    return;
-                }
-
-                resultBallot = data;
-            } catch (e) {
-                status = 'error';
-                errorMessage = 'Malformed response from server';
-                console.error(e);
-            }
-        };
-
-        wsBallot.onerror = (e) => {
-            console.error('WebSocket error:', e);
+            status = 'scanned-ballot';
+            resultBallot = data;
+        } catch (e) {
             status = 'error';
-            errorMessage = 'Connection error';
-        };
-
-        wsBallot.onclose = () => {
-            console.log('WebSocket closed');
-        };
+            errorMessage = String(e);
+            console.error(e);
+        }
     }
 
     // Tally!
@@ -318,7 +269,7 @@
                                 class="text-xl">Yes — Print Ballot</Button
                             >
                         {:else}
-                            <Button color="green" onclick={displayVoterReceipt} class="text-xl"
+                            <Button color="green" onclick={async () => await scanBallot()} class="text-xl"
                                 >Yes — Scan Ballot</Button
                             >
                         {/if}
@@ -331,10 +282,12 @@
         </div>
     {:else if status === 'scanning-ballot'}
         <div class="flex h-full flex-col items-center justify-center gap-4">
-            <p class="text-sm font-bold text-gray-500">
-                Have the voter place their ballot on the ballot scanner.
-            </p>
-
+            <div class="animate-pulse text-lg">Scanning Ballot...</div>
+            <p class="text-sm text-gray-500">Don't open the scanner until, candidates are revealed</p>
+            <Button color="light" onclick={reset}>Cancel</Button>
+        </div>
+    {:else if status === 'scanned-ballot'}
+        <div class="flex h-full flex-col items-center justify-center gap-4">
             <p>Voter Receipt</p>
             {#if resultBallot !== null}
                 <div class="grid w-full grid-cols-2 gap-4 overflow-auto rounded border p-4">
