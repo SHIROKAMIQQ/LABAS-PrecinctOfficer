@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { readFile, unlink } from 'fs/promises';
-import { PUBLIC_API_IP, PUBLIC_API_PORT, NAPS2_ } from '$env/static/public';
+import { PUBLIC_API_IP, PUBLIC_API_PORT } from '$env/static/public';
 import { NAPS2_PATH, NAPS2_DRIVER, NAPS2_DEVICE, NAPS2_SOURCE } from '$env/static/private';
 
 const execFileAsync = promisify(execFile);
