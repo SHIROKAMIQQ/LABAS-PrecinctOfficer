@@ -7,7 +7,7 @@ import { NAPS2_PATH, NAPS2_DRIVER, NAPS2_DEVICE, NAPS2_SOURCE } from '$env/stati
 
 const execFileAsync = promisify(execFile);
 
-export async function POST({ request }) {
+export async function POST({ request }: { request: Request }) {
     const { uin } = await request.json();
     const tmp = `/tmp/ballot_${uin}.png`;
 
