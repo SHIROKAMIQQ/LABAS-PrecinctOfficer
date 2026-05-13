@@ -243,7 +243,7 @@
                     >
                 </p>
                 <p>
-                    PRECINCT: <span class="ml-1.5 font-medium">{PRECINCT}</span>
+                    CURRENT PRECINCT: <span class="ml-1.5 font-medium">{PRECINCT}</span>
                 </p>
                 <p>
                     VOTER'S ADDRESS:
@@ -253,10 +253,12 @@
                 </p>
                 <p class="flex gap-2">
                     STATUS:
-                    <span class="ml-1.5">
+                    <span class="flex gap-1">
                         {#if resultQR.voter_status === null}
-                            <PrinterOutline size="xl" class="mr-1" /> Voter has
-                            <span class="text-xl font-medium">not</span> started with the process.
+                            <PrinterOutline size="xl" class="mr-1" /> 
+                            <span>Voter has
+                                <span class="text-xl font-medium">not</span> started with the process.
+                            </span>
                         {:else}
                             <UploadOutline size="xl" class="mr-1" /> Voter's ballot has been printed,
                             and <span class="text-xl font-medium">ready for scanning</span>.
