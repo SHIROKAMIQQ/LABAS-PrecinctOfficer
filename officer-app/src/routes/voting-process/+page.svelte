@@ -246,6 +246,12 @@
                     PRECINCT: <span class="ml-1.5 font-medium">{PRECINCT}</span>
                 </p>
                 <p>
+                    VOTER'S ADDRESS:
+                    <span class="ml-1.5 font-medium">
+                        {resultQR.demographics.location1_eng}, {resultQR.demographics.location3_eng}
+                    </span>
+                </p>
+                <p class="flex gap-2">
                     STATUS:
                     <span class="ml-1.5">
                         {#if resultQR.voter_status === null}
