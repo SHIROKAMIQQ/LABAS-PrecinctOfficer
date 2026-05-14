@@ -178,7 +178,8 @@
                 },
                 body: JSON.stringify({
                     uin: resultQR.uin,
-                    candidate_ids: resultBallot.payload.map((candidate) => candidate.candidate_id),
+                    candidate_ids: Object.values(resultBallot.payload.scan_results)
+                    .flatMap((position_data) => position_data.candidates.map((c) => c.candidate_id)),
                 }),
             });
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
