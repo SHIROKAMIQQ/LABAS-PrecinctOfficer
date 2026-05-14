@@ -103,6 +103,9 @@
         try {
             if (resultQR === null) throw new Error('No scan result');
 
+            // Wake up printer first
+            await fetch('/api/wake-printer', { method: 'POST' });
+
             const params = new URLSearchParams({
                 province: resultQR.demographics.location3_eng,
                 city: resultQR.demographics.location1_eng,
