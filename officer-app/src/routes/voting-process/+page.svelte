@@ -299,24 +299,43 @@
             <Button color="light" onclick={reset}>Cancel</Button>
         </div>
     {:else if status === 'scanned-ballot'}
-        <div class="flex h-full flex-col items-center justify-center gap-4">
-            <p>Voter Receipt</p>
+        <div class="flex flex-col justify-center gap-4">
+            <p class="text-xl font-bold self-center">Voter Receipt</p>
             {#if resultBallot !== null}
-                <div class="grid w-full grid-cols-2 gap-4 overflow-auto rounded border p-4">
-                {#each resultBallot.payload as candidate}
-                    <p>
-                        {candidate.last_name.toUpperCase()}, {candidate.first_name}
-                        {candidate.middle_name.toUpperCase()}
-                    </p>
-                {:else}
-                    <p>No candidate found</p>
-                {/each}
+                <div class="flex h-[65vh] gap-8 px-24">
+                    <img src="data:image/png;base64,{resultBallot.payload.image_bytes}" alt="Scanned ballot" class="h-full w-auto object-contain" />
+                    <div class="grid h-full flex-1 auto-rows-min grid-cols-2 gap-4 overflow-auto rounded border py-4 px-8 items-center justify-center">
+                        {#each Object.entries(resultBallot.payload.scan_results) as [position, position_data]}
+                            <div class="col-span-2 mt-2 text-center">
+                                <p class="font-bold uppercase">
+                                    {position}
+                                    {#if position_data.candidates.length > position_data.max_votes}
+                                        <span class="text-red-600">[OVERVOTE]</span>
+                                    {/if}
+                                </p> 
+
+                                <p>{position_data.candidates.length} / {position_data.max_votes}</p>
+
+                                
+                            </div>
+                            {#each position_data.candidates as candidate, i}
+                                <p class={i % 2 === 0 ? 'text-left' : 'text-right'}>
+                                    {candidate.last_name.toUpperCase()}, {candidate.first_name}
+                                    {candidate.middle_name?.toUpperCase()}
+                                </p>
+                            {:else}
+                                <p>No candidate found</p>
+                            {/each}
+                        {:else}
+                            <p>No candidates found</p>
+                        {/each}
+                    </div>
                 </div>
             {:else}
                 <p>No candidate found</p>
             {/if}
 
-            <div class="flex gap-8">
+            <div class="flex gap-8 self-center">
                 <Button
                     color="green"
                     onclick={async () => {
