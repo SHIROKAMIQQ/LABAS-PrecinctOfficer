@@ -323,7 +323,6 @@
                         await tallyVotes();
                     }}>Confirm Voter Receipt</Button
                 >
-                <Button color="red" onclick={reset}>Cancel</Button>
             </div>
         </div>
     {:else}
