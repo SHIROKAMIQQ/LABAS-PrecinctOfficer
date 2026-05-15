@@ -103,6 +103,9 @@
         try {
             if (resultQR === null) throw new Error('No scan result');
 
+            // Wake up printer first
+            await fetch('/api/wake-printer', { method: 'POST' });
+
             const params = new URLSearchParams({
                 province: resultQR.demographics.location3_eng,
                 city: resultQR.demographics.location1_eng,
@@ -175,7 +178,8 @@
                 },
                 body: JSON.stringify({
                     uin: resultQR.uin,
-                    candidate_ids: resultBallot.payload.map((candidate) => candidate.candidate_id),
+                    candidate_ids: Object.values(resultBallot.payload.scan_results)
+                    .flatMap((position_data) => position_data.candidates.map((c) => c.candidate_id)),
                 }),
             });
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -243,14 +247,22 @@
                     >
                 </p>
                 <p>
-                    PRECINCT: <span class="ml-1.5 font-medium">{PRECINCT}</span>
+                    CURRENT PRECINCT: <span class="ml-1.5 font-medium">{PRECINCT}</span>
                 </p>
                 <p>
+                    VOTER'S ADDRESS:
+                    <span class="ml-1.5 font-medium">
+                        {resultQR.demographics.location1_eng}, {resultQR.demographics.location3_eng}
+                    </span>
+                </p>
+                <p class="flex gap-2">
                     STATUS:
-                    <span class="ml-1.5">
+                    <span class="flex gap-1">
                         {#if resultQR.voter_status === null}
-                            <PrinterOutline size="xl" class="mr-1" /> Voter has
-                            <span class="text-xl font-medium">not</span> started with the process.
+                            <PrinterOutline size="xl" class="mr-1" /> 
+                            <span>Voter has
+                                <span class="text-xl font-medium">not</span> started with the process.
+                            </span>
                         {:else}
                             <UploadOutline size="xl" class="mr-1" /> Voter's ballot has been printed,
                             and <span class="text-xl font-medium">ready for scanning</span>.
@@ -287,31 +299,49 @@
             <Button color="light" onclick={reset}>Cancel</Button>
         </div>
     {:else if status === 'scanned-ballot'}
-        <div class="flex h-full flex-col items-center justify-center gap-4">
-            <p>Voter Receipt</p>
+        <div class="flex flex-col justify-center gap-4">
+            <p class="text-xl font-bold self-center">Voter Receipt</p>
             {#if resultBallot !== null}
-                <div class="grid w-full grid-cols-2 gap-4 overflow-auto rounded border p-4">
-                {#each resultBallot.payload as candidate}
-                    <p>
-                        {candidate.last_name.toUpperCase()}, {candidate.first_name}
-                        {candidate.middle_name.toUpperCase()}
-                    </p>
-                {:else}
-                    <p>No candidate found</p>
-                {/each}
+                <div class="flex h-[65vh] gap-8 px-24">
+                    <img src="data:image/png;base64,{resultBallot.payload.image_bytes}" alt="Scanned ballot" class="h-full w-auto object-contain" />
+                    <div class="grid h-full flex-1 auto-rows-min grid-cols-2 gap-4 overflow-auto rounded border py-4 px-8 items-center justify-center">
+                        {#each Object.entries(resultBallot.payload.scan_results) as [position, position_data]}
+                            <div class="col-span-2 mt-2 text-center">
+                                <p class="font-bold uppercase">
+                                    {position}
+                                    {#if position_data.candidates.length > position_data.max_votes}
+                                        <span class="text-red-600">[OVERVOTE]</span>
+                                    {/if}
+                                </p> 
+
+                                <p>{position_data.candidates.length} / {position_data.max_votes}</p>
+
+                                
+                            </div>
+                            {#each position_data.candidates as candidate, i}
+                                <p class={i % 2 === 0 ? 'text-left' : 'text-right'}>
+                                    {candidate.last_name.toUpperCase()}, {candidate.first_name}
+                                    {candidate.middle_name?.toUpperCase()}
+                                </p>
+                            {:else}
+                                <p>No candidate found</p>
+                            {/each}
+                        {:else}
+                            <p>No candidates found</p>
+                        {/each}
+                    </div>
                 </div>
             {:else}
                 <p>No candidate found</p>
             {/if}
 
-            <div class="flex gap-8">
+            <div class="flex gap-8 self-center">
                 <Button
                     color="green"
                     onclick={async () => {
                         await tallyVotes();
                     }}>Confirm Voter Receipt</Button
                 >
-                <Button color="red" onclick={reset}>Cancel</Button>
             </div>
         </div>
     {:else}

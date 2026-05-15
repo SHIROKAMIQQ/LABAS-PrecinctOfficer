@@ -9,6 +9,7 @@ import {
     array,
     variant,
     literal,
+    record,
 } from 'valibot';
 
 export const webSocketStatusValues = [
@@ -69,6 +70,12 @@ export const CandidateSchema = object({
 });
 export type Candidate = InferOutput<typeof CandidateSchema>;
 
+export const PositionGroupedCandidatesSchema = object({
+    max_votes: number(),
+    candidates: array(CandidateSchema),
+});
+
+
 export const scanBallotMessageTypeValues = ['candidates display', 'ack', 'error'] as const;
 
 export const ScanBallotStatusSchema = object({
@@ -79,7 +86,10 @@ export type ScanBallotStatus = InferOutput<typeof ScanBallotStatusSchema>;
 
 export const ScanBallotResultSchema = object({
     type: literal('candidates display'),
-    payload: array(CandidateSchema),
+    payload: object({
+        scan_results: record(string(), PositionGroupedCandidatesSchema),
+        image_bytes: string(),
+    }),
 });
 export type ScanBallotResult = InferOutput<typeof ScanBallotResultSchema>;
 

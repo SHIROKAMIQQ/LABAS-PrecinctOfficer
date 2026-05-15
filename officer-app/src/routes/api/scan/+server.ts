@@ -1,13 +1,13 @@
 import { json } from '@sveltejs/kit';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
-import { readFile, unlink } from 'fs/promises';
-import { PUBLIC_API_IP, PUBLIC_API_PORT, NAPS2_ } from '$env/static/public';
+import { access, readFile, unlink } from 'fs/promises';
+import { PUBLIC_API_IP, PUBLIC_API_PORT } from '$env/static/public';
 import { NAPS2_PATH, NAPS2_DRIVER, NAPS2_DEVICE, NAPS2_SOURCE } from '$env/static/private';
 
 const execFileAsync = promisify(execFile);
 
-export async function POST({ request }) {
+export async function POST({ request }: { request: Request }) {
     const { uin } = await request.json();
     const tmp = `/tmp/ballot_${uin}.png`;
 
@@ -17,6 +17,13 @@ export async function POST({ request }) {
             '--noprofile', '--driver', NAPS2_DRIVER,
             '--device', NAPS2_DEVICE, '--source', NAPS2_SOURCE,
         ]);
+
+        // Check if NAPS2 actually wrote the file
+        try {
+            await access(tmp);
+        } catch {
+            return json({ detail: 'Scanner failed to produce an image. Check scanner connection and try again.' }, { status: 500 });
+        }
 
         const imageBytes = await readFile(tmp);
         const base64 = imageBytes.toString('base64');
